@@ -6,5 +6,5 @@ export async function getLessons(): Promise<Lesson[]> {
 }
 
 export async function getLesson(id: number): Promise<Lesson> {
-  return http<Lesson>(\`/lessons/\${id}\`);
+  return http<Lesson>(`/lessons/${id}`);
 }

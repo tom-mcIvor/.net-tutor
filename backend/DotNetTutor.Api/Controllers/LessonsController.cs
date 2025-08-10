@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DotNetTutor.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/lessons")]
 public class LessonsController : ControllerBase
 {
     private static readonly LessonDto[] Lessons = new[]
