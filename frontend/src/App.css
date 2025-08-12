@@ -40,3 +40,182 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Layout container */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  background: #0f172a; /* slate-900 */
+  color: #e2e8f0;      /* slate-200 */
+}
+
+/* Sidebar */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: #111827; /* gray-900 */
+  border-right: 1px solid #1f2937; /* gray-800 */
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transform: translateX(0);
+  transition: transform 200ms ease;
+  z-index: 30;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #1f2937;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #93c5fd; /* blue-300 */
+}
+
+.close-btn {
+  display: none;
+  background: transparent;
+  color: #9ca3af; /* gray-400 */
+  border: 1px solid #374151; /* gray-700 */
+  border-radius: 6px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+}
+
+.nav-link {
+  display: block;
+  color: #cbd5e1; /* slate-300 */
+  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.nav-link:hover {
+  background: #1f2937; /* gray-800 */
+  color: #ffffff;
+}
+
+.nav-link.small {
+  font-size: 12px;
+  color: #94a3b8; /* slate-400 */
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #1f2937;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Content side */
+.content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Top bar */
+.topbar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(2, 6, 23, 0.6); /* slate-950 with alpha */
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid #1f2937;
+  z-index: 20;
+}
+
+.hamburger {
+  display: none;
+  background: transparent;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Main content */
+.main {
+  padding: 16px;
+}
+
+.card {
+  background: #0b1220; /* deep slate */
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+/* Mobile / small screens */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hamburger {
+    display: inline-block;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100dvh;
+    width: 80%;
+    max-width: 300px;
+    transform: translateX(-100%);
+    box-shadow: 8px 0 24px rgba(0,0,0,0.4);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .close-btn {
+    display: inline-block;
+  }
+
+  .content {
+    min-height: 100vh;
+  }
+}
+
+/* Reset some Vite template styles that may conflict */
+.logo, .read-the-docs {
+  display: none !important;
+}
