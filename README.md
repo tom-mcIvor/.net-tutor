@@ -1,8 +1,5 @@
 # .NET Tutor — Learn .NET by Building with .NET
 
-This repository is a **hands-on learning project** that teaches modern .NET development by using **.NET itself**.  
-It combines a **.NET 8 backend** with a **React + TypeScript frontend** to explore .NET fundamentals, conventions, and developer workflows.
-
 ---
 
 ## 🚀 MVP (First Release Goals)
