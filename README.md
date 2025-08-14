@@ -1,8 +1,14 @@
 # .NET Tutor — Learn .NET by Building with .NET
 
-## MVP
+This repository is a **hands-on learning project** that teaches modern .NET development by using **.NET itself**.  
+It combines a **.NET 8 backend** with a **React + TypeScript frontend** to explore .NET fundamentals, conventions, and developer workflows.
 
-The **.NET Tutor App** is a learning tool built with **.NET** (backend) and **React + TypeScript** (frontend). It is designed to present structured, interactive content inspired by the official .NET documentation, with the goal of helping me deepen my understanding of the .NET Framework.
+---
+
+## 🚀 MVP (First Release Goals)
+
+The **.NET Tutor App** is a learning tool built with **.NET** (backend) and **React + TypeScript** (frontend).  
+It presents structured, interactive content inspired by the official .NET documentation, with the goal of deepening my understanding of the .NET Framework.
 
 **The MVP will include:**
 
@@ -21,130 +27,64 @@ The **.NET Tutor App** is a learning tool built with **.NET** (backend) and **Re
 
 3. **Basic User Authentication**  
    - Sign up, log in, and log out with email/password.  
-   - JWT or cookie-based auth.  
+   - JWT or cookie-based authentication.  
 
 4. **Responsive Design**  
-   - Optimized layout for desktop, tablet, and mobile viewing.  
+   - Optimized for desktop, tablet, and mobile viewing.  
 
 5. **Basic Search Functionality**  
    - Search bar to find topics or keywords within the tutorial content.  
 
 6. **Error & Loading States**  
    - Graceful error handling for missing content or API failures.  
-   - Loading spinners or placeholders during data fetches.  
+   - Loading spinners/placeholders while fetching data.  
 
 7. **AWS Deployment**  
-   - Fully deployed and accessible via a public AWS endpoint (using AWS Elastic Beanstalk, EC2, or Amplify).  
+   - Publicly accessible deployment on AWS (Elastic Beanstalk, EC2, or Amplify).  
    - Basic CI/CD pipeline for automated deployments.  
 
 8. **Stripe Integration**  
    - Basic payment flow for unlocking premium content.  
-   - Test mode enabled for development.  
+   - Test mode enabled during development.  
 
 ---
 
-## Stretch Goals
+## 🌟 Stretch Goals
 
-- **Interactive Code Playground** — Allow users to run .NET code snippets directly in the browser.  
-- **Progress Tracking** — Track which lessons/topics have been completed.  
-- **Quizzes & Challenges** — Add short tests after each section to reinforce learning.  
-- **Dark Mode** — Optional theme toggle for user comfort.  
+- **Interactive Code Playground** — Run .NET code snippets in the browser.  
+- **Progress Tracking** — Track completed lessons/topics.  
+- **Quizzes & Challenges** — Short tests after sections to reinforce learning.  
+- **Dark Mode** — Theme toggle for user comfort.  
 - **User Profiles** — Store bookmarks, progress, and payment history.  
-- **Admin Dashboard** — Manage content, view user metrics, and handle Stripe transactions from a secure interface.  
-- **Offline Mode** — Cache lessons for reading without internet.  
-- **Multi-language Support** — Offer the tutorial in multiple languages for broader accessibility.  
+- **Admin Dashboard** — Manage content, metrics, and Stripe transactions.  
+- **Offline Mode** — Cache lessons for offline reading.  
+- **Multi-language Support** — Tutorials in multiple languages.
 
+---
 
+## 📌 Why This Project
 
+- Learn **.NET 8** with real code, not just snippets.  
+- Understand ASP.NET Core API design, configuration, DI, middleware, and Swagger/OpenAPI.  
+- Practice the **.NET CLI workflow**: `new`, `build`, `run`, `publish`, `test`.  
+- See how a frontend consumes a typed .NET API during development.
 
- repository is a hands-on learning project that teaches modern .NET development by using .NET itself. You will build and run an ASP.NET Core Web API (backend) and interact with it from a simple frontend. The emphasis is on understanding .NET fundamentals, conventions, and developer workflow.
+---
 
-## Why This Project
+## 🛠 Tech Overview
 
-- Learn .NET 8 with real code, not snippets.
-- Understand ASP.NET Core API design, configuration, DI, middleware, and Swagger/OpenAPI.
-- Practice the .NET CLI workflow: new, build, run, publish, test.
-- See how a frontend consumes a typed .NET API during local development.
+**Backend (Primary Focus)**  
+- .NET 8 SDK  
+- ASP.NET Core Web API with Controllers  
+- Dependency Injection (DI)  
+- Configuration via `appsettings.json` and environments  
+- Swagger (Swashbuckle) for API exploration  
 
-## Tech Overview (.NET Focus)
+**Frontend (Support Role)**  
+- React + TypeScript (Vite)  
+- Calls the .NET API for end-to-end demo
 
-- .NET 8 SDK
-- ASP.NET Core Web API with Controllers
-- Dependency Injection and minimal hosting model
-- Configuration via appsettings.json and environments
-- Swagger (Swashbuckle) for interactive API exploration
+---
 
-## Repository Structure
+## 📂 Repository Structure
 
-- backend/
-  - DotNetTutor.Api/ — ASP.NET Core Web API project (primary learning focus)
-- frontend/
-  - Vite + React app that calls the .NET API (supporting role for end-to-end demo)
-- dot-net-tutor.sln — Solution file for working with the backend in IDEs like Rider or VS
-
-For backend details, see [backend/README.md](backend/README.md).
-
-## Prerequisites
-
-- .NET 8 SDK
-- Node.js (only for running the optional frontend during local development)
-
-Verify .NET:
-- dotnet --version
-
-## .NET Learning Path in This Repo
-
-1) Explore the API project layout
-- Program.cs: app bootstrap (builder, services, middleware, Swagger)
-- Controllers/LessonsController.cs: REST endpoints and routing
-- Models/Lesson.cs: simple domain model
-- appsettings.json + appsettings.Development.json: configuration binding
-
-2) Run the API
-- cd ./backend/DotNetTutor.Api
-- dotnet run --launch-profile "http" --no-restore
-- Navigate to Swagger: http://localhost:5000/swagger
-
-3) Inspect and extend endpoints
-- Add routes, validate input, return IActionResult, explore model binding.
-- Experiment with DI: register services in Program.cs and inject into controllers.
-
-4) Build and publish
-- dotnet build
-- dotnet publish -c Release -o out
-- Review the published output for deployment.
-
-5) Add tests (optional next step)
-- dotnet new xunit -o ../DotNetTutor.Tests
-- dotnet add ../DotNetTutor.Tests/DotNetTutor.Tests.csproj reference DotNetTutor.Api.csproj
-- dotnet test
-
-## Daily .NET CLI Workflow
-
-- Restore (usually implicit with build/run): dotnet restore
-- Build: dotnet build
-- Run: dotnet run
-- Test: dotnet test
-- Publish: dotnet publish -c Release -o out
-- New project templates: dotnet new --list
-
-## Running the Full Stack (Optional)
-
-- Start backend: http://localhost:5000
-- Start frontend (from ./frontend):
-  - npm install
-  - npm run dev -- --host
-- The frontend consumes the backend’s /api endpoints.
-
-If ports differ, adjust frontend env at frontend/.env.local.
-
-## Goals and Next Steps
-
-- Add new endpoints and apply best practices (DTOs, validation, logging).
-- Introduce persistence (EF Core) and migrations.
-- Add integration/unit tests.
-- Containerize with Docker after you understand the local flow.
-
-## License
-
-MIT
