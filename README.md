@@ -1,6 +1,63 @@
 # .NET Tutor — Learn .NET by Building with .NET
 
-This repository is a hands-on learning project that teaches modern .NET development by using .NET itself. You will build and run an ASP.NET Core Web API (backend) and interact with it from a simple frontend. The emphasis is on understanding .NET fundamentals, conventions, and developer workflow.
+## MVP
+
+The **.NET Tutor App** is a learning tool built with **.NET** (backend) and **React + TypeScript** (frontend). It is designed to present structured, interactive content inspired by the official .NET documentation, with the goal of helping me deepen my understanding of the .NET Framework.
+
+**The MVP will include:**
+
+1. **Side Navigation Bar**  
+   - Persistent left-hand side nav with at least **6 clickable tabs**, e.g.:  
+     1. Introduction to .NET  
+     2. C# Basics  
+     3. ASP.NET Core Overview  
+     4. Entity Framework Core  
+     5. .NET Libraries & Tools  
+     6. Advanced Topics  
+
+2. **Content Display**  
+   - Each tab loads a dedicated page with text, code snippets, and examples.  
+   - Syntax highlighting for code samples.  
+
+3. **Basic User Authentication**  
+   - Sign up, log in, and log out with email/password.  
+   - JWT or cookie-based auth.  
+
+4. **Responsive Design**  
+   - Optimized layout for desktop, tablet, and mobile viewing.  
+
+5. **Basic Search Functionality**  
+   - Search bar to find topics or keywords within the tutorial content.  
+
+6. **Error & Loading States**  
+   - Graceful error handling for missing content or API failures.  
+   - Loading spinners or placeholders during data fetches.  
+
+7. **AWS Deployment**  
+   - Fully deployed and accessible via a public AWS endpoint (using AWS Elastic Beanstalk, EC2, or Amplify).  
+   - Basic CI/CD pipeline for automated deployments.  
+
+8. **Stripe Integration**  
+   - Basic payment flow for unlocking premium content.  
+   - Test mode enabled for development.  
+
+---
+
+## Stretch Goals
+
+- **Interactive Code Playground** — Allow users to run .NET code snippets directly in the browser.  
+- **Progress Tracking** — Track which lessons/topics have been completed.  
+- **Quizzes & Challenges** — Add short tests after each section to reinforce learning.  
+- **Dark Mode** — Optional theme toggle for user comfort.  
+- **User Profiles** — Store bookmarks, progress, and payment history.  
+- **Admin Dashboard** — Manage content, view user metrics, and handle Stripe transactions from a secure interface.  
+- **Offline Mode** — Cache lessons for reading without internet.  
+- **Multi-language Support** — Offer the tutorial in multiple languages for broader accessibility.  
+
+
+
+
+ repository is a hands-on learning project that teaches modern .NET development by using .NET itself. You will build and run an ASP.NET Core Web API (backend) and interact with it from a simple frontend. The emphasis is on understanding .NET fundamentals, conventions, and developer workflow.
 
 ## Why This Project
 
