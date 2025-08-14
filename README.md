@@ -1,4 +1,4 @@
-# .NET Tutor — Learn .NET by Building with .NET
+# .NET Tutor — Learn .NET with My .NET app
 
 ---
 
