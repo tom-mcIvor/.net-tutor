@@ -9,32 +9,32 @@ It delivers interactive, structured content inspired by official .NET documentat
 
 **The MVP will include:**
 
-1. **Structured Side Navigation**
-   - Persistent left-hand side nav with at least **6 clickable tabs**:
-     1. Introduction to .NET
-     2. C# Basics
-     3. ASP.NET Core Overview
-     4. Entity Framework Core
-     5. .NET Libraries & Tools
+1. **Structured Side Navigation**  
+   - Persistent left-hand side nav with at least **6 clickable tabs**:  
+     1. Introduction to .NET  
+     2. C# Basics  
+     3. ASP.NET Core Overview  
+     4. Entity Framework Core  
+     5. .NET Libraries & Tools  
      6. Advanced Topics
 
-2. **Interactive Content Display**
-   - Each tab loads a dedicated page with text, code snippets, and examples.
+2. **Interactive Content Display**  
+   - Each tab loads a dedicated page with text, code snippets, and examples.  
    - Syntax highlighting for code samples.
 
-3. **Basic User Authentication**
-   - Sign up, log in, and log out with email/password.
-   - JWT or cookie-based authentication.
-
-4. **Responsive Design**
+3. **Responsive Design**  
    - Optimized for desktop, tablet, and mobile viewing.
 
-5. **Basic Search Functionality**
+4. **Basic Search Functionality**  
    - Search bar to find topics or keywords within the tutorial content.
 
-6. **Error & Loading States**
-   - Graceful error handling for missing content or API failures.
+5. **Error & Loading States**  
+   - Graceful error handling for missing content or API failures.  
    - Loading spinners/placeholders while fetching data.
+
+6. **Basic User Authentication**  
+   - Sign up, log in, and log out with email/password.  
+   - JWT or cookie-based authentication.
 
 ---
 
@@ -64,15 +64,15 @@ It delivers interactive, structured content inspired by official .NET documentat
 
 ## 🛠 Tech Overview
 
-**Backend (Primary Focus)**
-- .NET 8 SDK
-- ASP.NET Core Web API with Controllers
-- Dependency Injection (DI)
-- Configuration via `appsettings.json` and environments
+**Backend (Primary Focus)**  
+- .NET 8 SDK  
+- ASP.NET Core Web API with Controllers  
+- Dependency Injection (DI)  
+- Configuration via `appsettings.json` and environments  
 - Swagger (Swashbuckle) for API exploration
 
-**Frontend (Support Role)**
-- React + TypeScript (Vite)
+**Frontend (Support Role)**  
+- React + TypeScript (Vite)  
 - Calls the .NET API for end-to-end demo
 
 ---
