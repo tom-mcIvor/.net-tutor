@@ -99,12 +99,21 @@
 }
 
 .nav-link {
+  /* support both <a> and <button> elements */
   display: block;
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: transparent;
+  border: none;
   color: #cbd5e1; /* slate-300 */
   text-decoration: none;
   padding: 8px 10px;
   border-radius: 8px;
   transition: background-color 150ms ease, color 150ms ease;
+  cursor: pointer;
 }
 
 .nav-link:hover {
@@ -115,6 +124,14 @@
 .nav-link.small {
   font-size: 12px;
   color: #94a3b8; /* slate-400 */
+}
+
+/* Active / selected tab */
+.nav-link.active {
+  background: linear-gradient(90deg, rgba(99,102,241,0.12), rgba(99,102,241,0.06));
+  color: #e6eefc; /* lighter */
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(99,102,241,0.06);
 }
 
 .sidebar-footer {
