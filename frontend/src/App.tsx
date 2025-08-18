@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './App.css'
+import Sidebar from './components/Sidebar'
  
 const TABS = [
   'Introduction to .NET',
@@ -16,39 +17,13 @@ function App() {
  
   return (
     <div className="layout">
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <span className="brand">.NET Tutor</span>
-          <button
-            className="close-btn"
-            aria-label="Close sidebar"
-            onClick={() => setSidebarOpen(false)}
-          >
-            ✕
-          </button>
-        </div>
- 
-        <nav className="nav" aria-label="Primary">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              className={`nav-link ${activeTab === tab ? 'active' : ''}`}
-              onClick={() => {
-                setActiveTab(tab)
-                setSidebarOpen(false)
-              }}
-              aria-current={activeTab === tab ? 'page' : undefined}
-            >
-              {tab}
-            </button>
-          ))}
-        </nav>
- 
-        <div className="sidebar-footer">
-          <a className="nav-link small" href="https://learn.microsoft.com/dotnet/" target="_blank" rel="noreferrer">Microsoft .NET</a>
-          <a className="nav-link small" href="https://docs.microsoft.com/dotnet/csharp/" target="_blank" rel="noreferrer">C# Docs</a>
-        </div>
-      </aside>
+      <Sidebar
+        tabs={TABS}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+      />
  
       <div className="content">
         <header className="topbar">
