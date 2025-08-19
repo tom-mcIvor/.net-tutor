@@ -9,7 +9,7 @@ It delivers interactive, structured content inspired by official .NET documentat
 
 **The MVP will include:**
 
-- [x] **Structured Side Navigation**
+- ✅ **Structured Side Navigation**
    - Persistent left-hand side nav with at least **6 clickable tabs**:
      1. Introduction to .NET
      2. C# Basics
@@ -18,21 +18,21 @@ It delivers interactive, structured content inspired by official .NET documentat
      5. .NET Libraries & Tools
      6. Advanced Topics
 
-- [x] **Interactive Content Display**
+- ✅ **Interactive Content Display**
    - Each tab loads a dedicated page with text, code snippets, and examples.
    - Syntax highlighting for code samples.
 
-- [x] **Responsive Design**
+- ✅ **Responsive Design**
    - Optimized for desktop, tablet, and mobile viewing.
 
-- [x] **Basic Search Functionality**
+- ✅ **Basic Search Functionality**
    - Search bar to find topics or keywords within the tutorial content.
 
-- [x] **Error & Loading States**
+- ✅ **Error & Loading States**
    - Graceful error handling for missing content or API failures.
    - Loading spinners/placeholders while fetching data.
 
-- [x] **Basic User Authentication**
+- ✅ **Basic User Authentication**
    - Sign up, log in, and log out with email/password.
    - JWT or cookie-based authentication.
 
@@ -40,16 +40,16 @@ It delivers interactive, structured content inspired by official .NET documentat
 
 ## 🌟 Stretch Goals
 
-- [ ] **AWS Deployment** — Public cloud hosting with CI/CD pipeline for automated deployments (Elastic Beanstalk, EC2, or Amplify).
-- [ ] **Stripe Integration** — Payment flow for unlocking premium content (test mode during development).
-- [ ] **Interactive Code Playground** — Run .NET code snippets in the browser.
-- [ ] **Progress Tracking** — Track completed lessons and topics.
-- [ ] **Quizzes & Challenges** — Short tests after sections to reinforce learning.
-- [x] **Dark Mode** — Theme toggle for user comfort.
-- [ ] **User Profiles** — Store bookmarks, progress, and payment history.
-- [ ] **Admin Dashboard** — Manage content, metrics, and Stripe transactions.
-- [ ] **Offline Mode** — Cache lessons for offline reading.
-- [ ] **Multi-language Support** — Tutorials in multiple languages.
+- ⏳ **AWS Deployment** — Public cloud hosting with CI/CD pipeline for automated deployments (Elastic Beanstalk, EC2, or Amplify).
+- ⏳ **Stripe Integration** — Payment flow for unlocking premium content (test mode during development).
+- ⏳ **Interactive Code Playground** — Run .NET code snippets in the browser.
+- ⏳ **Progress Tracking** — Track completed lessons and topics.
+- ⏳ **Quizzes & Challenges** — Short tests after sections to reinforce learning.
+- ✅ **Dark Mode** — Theme toggle for user comfort.
+- ⏳ **User Profiles** — Store bookmarks, progress, and payment history.
+- ⏳ **Admin Dashboard** — Manage content, metrics, and Stripe transactions.
+- ⏳ **Offline Mode** — Cache lessons for offline reading.
+- ⏳ **Multi-language Support** — Tutorials in multiple languages.
 
 ---
 
