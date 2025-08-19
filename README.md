@@ -1,5 +1,7 @@
 # .NET Tutor — Learn .NET with My .NET app
 
+🌐 **Live Demo:** [net-tutor-tommcivors-projects.vercel.app](https://net-tutor-tommcivors-projects.vercel.app)
+
 ---
 
 ## 🚀 MVP (First Release Goals)
@@ -21,6 +23,15 @@ It delivers interactive, structured content inspired by official .NET documentat
 - ✅ **Interactive Content Display**
    - Each tab loads a dedicated page with text, code snippets, and examples.
    - Syntax highlighting for code samples.
+
+- ✅ **Create Comprehensive Learning Material**
+   - Detailed educational content for each navigation tab:
+     1. **Introduction to .NET** - Platform overview, key concepts, Hello World example
+     2. **C# Basics** - Variables, data types, control structures, OOP principles
+     3. **ASP.NET Core Overview** - Web development, MVC pattern, API creation
+     4. **Entity Framework Core** - Database access, ORM patterns, migrations
+     5. **.NET Libraries & Tools** - NuGet packages, CLI tools, ecosystem
+     6. **Advanced Topics** - Microservices, testing, deployment strategies
 
 - ✅ **Responsive Design**
    - Optimized for desktop, tablet, and mobile viewing.
