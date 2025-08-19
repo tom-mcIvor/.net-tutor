@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 type SidebarProps = {
   tabs: string[]
@@ -15,6 +15,12 @@ export default function Sidebar({
   sidebarOpen,
   setSidebarOpen
 }: SidebarProps) {
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const filteredTabs = tabs.filter(tab =>
+    tab.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   return (
     <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
@@ -28,8 +34,19 @@ export default function Sidebar({
         </button>
       </div>
 
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Search topics..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+          aria-label="Search tutorial topics"
+        />
+      </div>
+
       <nav className="nav" aria-label="Primary">
-        {tabs.map((tab) => (
+        {filteredTabs.map((tab) => (
           <button
             key={tab}
             className={`nav-link ${activeTab === tab ? 'active' : ''}`}
