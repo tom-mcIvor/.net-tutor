@@ -63,7 +63,7 @@ export default function Home() {
     };
   }, [activeTab, user, addTimeSpent]);
 
-  const handleLessonComplete = (lessonId: string) => {
+  const handleLessonComplete = (lessonId: number) => {
     markLessonComplete(lessonId.toString());
     // Also mark the current topic as complete if this is the first lesson
     if (!isTopicComplete(activeTab)) {
