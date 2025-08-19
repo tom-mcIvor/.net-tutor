@@ -24,7 +24,7 @@ It delivers interactive, structured content inspired by official .NET documentat
    - Each tab loads a dedicated page with text, code snippets, and examples.
    - Syntax highlighting for code samples.
 
-- ✅ **Create Comprehensive Learning Material**
+- [ ] **Create Comprehensive Learning Material**
    - Detailed educational content for each navigation tab:
      1. **Introduction to .NET** - Platform overview, key concepts, Hello World example
      2. **C# Basics** - Variables, data types, control structures, OOP principles
