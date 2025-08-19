@@ -9,31 +9,31 @@ It delivers interactive, structured content inspired by official .NET documentat
 
 **The MVP will include:**
 
-1. **Structured Side Navigation**  
-   - Persistent left-hand side nav with at least **6 clickable tabs**:  
-     1. Introduction to .NET  
-     2. C# Basics  
-     3. ASP.NET Core Overview  
-     4. Entity Framework Core  
-     5. .NET Libraries & Tools  
+- [x] **Structured Side Navigation**
+   - Persistent left-hand side nav with at least **6 clickable tabs**:
+     1. Introduction to .NET
+     2. C# Basics
+     3. ASP.NET Core Overview
+     4. Entity Framework Core
+     5. .NET Libraries & Tools
      6. Advanced Topics
 
-2. **Interactive Content Display**  
-   - Each tab loads a dedicated page with text, code snippets, and examples.  
+- [x] **Interactive Content Display**
+   - Each tab loads a dedicated page with text, code snippets, and examples.
    - Syntax highlighting for code samples.
 
-3. **Responsive Design**  
+- [x] **Responsive Design**
    - Optimized for desktop, tablet, and mobile viewing.
 
-4. **Basic Search Functionality**  
+- [x] **Basic Search Functionality**
    - Search bar to find topics or keywords within the tutorial content.
 
-5. **Error & Loading States**  
-   - Graceful error handling for missing content or API failures.  
+- [x] **Error & Loading States**
+   - Graceful error handling for missing content or API failures.
    - Loading spinners/placeholders while fetching data.
 
-6. **Basic User Authentication**  
-   - Sign up, log in, and log out with email/password.  
+- [x] **Basic User Authentication**
+   - Sign up, log in, and log out with email/password.
    - JWT or cookie-based authentication.
 
 ---
