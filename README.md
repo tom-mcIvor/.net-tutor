@@ -32,10 +32,6 @@ It delivers interactive, structured content inspired by official .NET documentat
    - Graceful error handling for missing content or API failures.
    - Loading spinners/placeholders while fetching data.
 
-- ✅ **Basic User Authentication**
-   - Sign up, log in, and log out with email/password.
-   - JWT or cookie-based authentication.
-
 ---
 
 ## 🌟 Stretch Goals
@@ -43,7 +39,8 @@ It delivers interactive, structured content inspired by official .NET documentat
 - [ ] **AWS Deployment** — Public cloud hosting with CI/CD pipeline for automated deployments (Elastic Beanstalk, EC2, or Amplify).
 - [ ] **Stripe Integration** — Payment flow for unlocking premium content (test mode during development).
 - [ ] **Interactive Code Playground** — Run .NET code snippets in the browser.
-- [x] **Progress Tracking** — Track completed lessons and topics.
+- ✅ **Progress Tracking** — Track completed lessons and topics.
+- ✅ **Basic User Authentication** — Sign up, log in, and log out with email/password using JWT authentication.
 - [ ] **Quizzes & Challenges** — Short tests after sections to reinforce learning.
 - ✅ **Dark Mode** — Theme toggle for user comfort.
 - [ ] **User Profiles** — Store bookmarks, progress, and payment history.
