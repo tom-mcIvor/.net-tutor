@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { Login } from './Login'
 import { Register } from './Register'
+import { ThemeToggle } from './ThemeToggle'
 
 type SidebarProps = {
   tabs: string[]
@@ -57,13 +58,16 @@ export default function Sidebar({
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <span className="brand">.NET Tutor</span>
-          <button
-            className="close-btn"
-            aria-label="Close sidebar"
-            onClick={() => setSidebarOpen(false)}
-          >
-            ✕
-          </button>
+          <div className="header-controls">
+            <ThemeToggle />
+            <button
+              className="close-btn"
+              aria-label="Close sidebar"
+              onClick={() => setSidebarOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <div className="search-container">
