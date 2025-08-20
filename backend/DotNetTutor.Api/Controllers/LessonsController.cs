@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using DotNetTutor.Api.Services;
 
 namespace DotNetTutor.Api.Controllers;
 
@@ -6,20 +7,26 @@ namespace DotNetTutor.Api.Controllers;
 [Route("api/lessons")]
 public class LessonsController : ControllerBase
 {
-    private static readonly LessonDto[] Lessons = new[]
-    {
-        new LessonDto { Id = 1, Title = "Introduction to .NET", Description = "Overview of .NET and its components.", Content = "The .NET platform is a free, cross-platform, open-source developer platform for building many different types of applications..." },
-        new LessonDto { Id = 2, Title = "ASP.NET Core Basics", Description = "Learn the basics of building web APIs.", Content = "ASP.NET Core is a cross-platform framework for building modern cloud-based, internet-connected applications..." }
-    };
-
     [HttpGet]
-    public IActionResult GetAll() => Ok(Lessons);
+    public IActionResult GetAll() => Ok(LessonContentService.CSharpBasicsLessons);
 
     [HttpGet("{id:int}")]
     public IActionResult GetById(int id)
     {
-        var lesson = Array.Find(Lessons, l => l.Id == id);
+        var lesson = Array.Find(LessonContentService.CSharpBasicsLessons, l => l.Id == id);
         return lesson is null ? NotFound() : Ok(lesson);
+    }
+
+    [HttpGet("count")]
+    public IActionResult GetLessonCount() => Ok(new { count = LessonContentService.CSharpBasicsLessons.Length });
+
+    [HttpGet("topics")]
+    public IActionResult GetTopics()
+    {
+        var topics = LessonContentService.CSharpBasicsLessons
+            .Select(l => new { l.Id, l.Title, l.Description })
+            .ToArray();
+        return Ok(topics);
     }
 }
 
