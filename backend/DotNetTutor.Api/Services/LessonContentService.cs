@@ -1170,6 +1170,299 @@ person1.Introduce(); // Output: Hi, I'm Alice and I'm 25 years old.
 - Objects have properties (data) and methods (behavior)
 - Constructors initialize objects when they're created
 - OOP helps organize and structure larger programs"
+        },
+
+        // Module 9: ASP.NET Core Overview
+        new LessonDto
+        {
+            Id = 9,
+            Title = "ASP.NET Core Fundamentals",
+            Description = "Learn the core concepts of ASP.NET Core - Microsoft's modern web framework for building high-performance applications.",
+            Content = @"# ASP.NET Core Fundamentals
+
+## What is ASP.NET Core?
+
+ASP.NET Core is a cross-platform, high-performance, open-source framework for building modern, cloud-enabled, Internet-connected applications. It's a complete rewrite of ASP.NET that runs on .NET Core.
+
+## Key Benefits
+
+✅ **Cross-Platform**: Runs on Windows, macOS, and Linux
+✅ **High Performance**: Optimized for speed and scalability
+✅ **Cloud-Ready**: Built for modern cloud deployment
+✅ **Open Source**: Available on GitHub with community contributions
+✅ **Modular**: Use only what you need with minimal overhead
+
+## Core Architecture
+
+### The Request Pipeline
+
+ASP.NET Core uses a middleware pipeline to handle HTTP requests:
+
+```csharp
+public class Startup
+{
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+
+        app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
+```
+
+### Dependency Injection
+
+Built-in DI container for managing dependencies:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllers();
+    services.AddScoped<IUserService, UserService>();
+    services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connectionString));
+}
+```
+
+## MVC Pattern in ASP.NET Core
+
+### Controllers
+
+Controllers handle HTTP requests and return responses:
+
+```csharp
+[ApiController]
+[Route(""api/[controller]"")]
+public class ProductsController : ControllerBase
+{
+    private readonly IProductService _productService;
+
+    public ProductsController(IProductService productService)
+    {
+        _productService = productService;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+    {
+        var products = await _productService.GetAllAsync();
+        return Ok(products);
+    }
+
+    [HttpGet(""{id}"")]
+    public async Task<ActionResult<Product>> GetProduct(int id)
+    {
+        var product = await _productService.GetByIdAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+        return Ok(product);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Product>> CreateProduct(Product product)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var createdProduct = await _productService.CreateAsync(product);
+        return CreatedAtAction(nameof(GetProduct),
+            new { id = createdProduct.Id }, createdProduct);
+    }
+}
+```
+
+## Routing
+
+### Attribute Routing
+
+Define routes directly on controllers and actions:
+
+```csharp
+[Route(""api/products"")]
+public class ProductsController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult GetAll() => Ok();
+
+    [HttpGet(""{id:int}"")]
+    public IActionResult GetById(int id) => Ok();
+
+    [HttpGet(""search/{term}"")]
+    public IActionResult Search(string term) => Ok();
+
+    [HttpPost]
+    public IActionResult Create([FromBody] Product product) => Ok();
+}
+```
+
+## Configuration
+
+### appsettings.json
+
+Store configuration in JSON files:
+
+```json
+{
+  ""ConnectionStrings"": {
+    ""DefaultConnection"": ""Server=localhost;Database=MyApp;Trusted_Connection=true;""
+  },
+  ""Logging"": {
+    ""LogLevel"": {
+      ""Default"": ""Information"",
+      ""Microsoft"": ""Warning""
+    }
+  }
+}
+```
+
+## Web APIs
+
+### RESTful API Design
+
+Follow REST conventions:
+
+```csharp
+[ApiController]
+[Route(""api/[controller]"")]
+public class BooksController : ControllerBase
+{
+    // GET api/books
+    [HttpGet]
+    public ActionResult<IEnumerable<Book>> GetBooks()
+    {
+        // Return all books
+    }
+
+    // GET api/books/5
+    [HttpGet(""{id}"")]
+    public ActionResult<Book> GetBook(int id)
+    {
+        // Return specific book
+    }
+
+    // POST api/books
+    [HttpPost]
+    public ActionResult<Book> PostBook(Book book)
+    {
+        // Create new book
+    }
+
+    // PUT api/books/5
+    [HttpPut(""{id}"")]
+    public IActionResult PutBook(int id, Book book)
+    {
+        // Update existing book
+    }
+
+    // DELETE api/books/5
+    [HttpDelete(""{id}"")]
+    public IActionResult DeleteBook(int id)
+    {
+        // Delete book
+    }
+}
+```
+
+## Authentication & Authorization
+
+### JWT Authentication
+
+Configure JWT authentication:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = Configuration[""Jwt:Issuer""],
+                ValidAudience = Configuration[""Jwt:Audience""],
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(Configuration[""Jwt:Key""]))
+            };
+        });
+}
+```
+
+## Best Practices
+
+### 1. Use Dependency Injection
+- Register services in `ConfigureServices`
+- Inject dependencies through constructors
+- Use appropriate service lifetimes (Singleton, Scoped, Transient)
+
+### 2. Follow REST Conventions
+- Use appropriate HTTP verbs
+- Return meaningful status codes
+- Use consistent URL patterns
+
+### 3. Implement Proper Error Handling
+- Use global exception handling
+- Return appropriate error responses
+- Log errors for debugging
+
+### 4. Secure Your Application
+- Use HTTPS
+- Implement authentication and authorization
+- Validate all inputs
+- Protect against common attacks (XSS, CSRF, SQL Injection)
+
+### 5. Optimize Performance
+- Use async/await for I/O operations
+- Implement caching where appropriate
+- Minimize database queries
+- Use compression for responses
+
+## Next Steps
+
+After mastering these fundamentals, explore:
+
+1. **Entity Framework Core** - Data access and ORM
+2. **SignalR** - Real-time web functionality
+3. **Background Services** - Long-running tasks
+4. **Microservices** - Distributed architecture
+5. **Azure Integration** - Cloud deployment and services
+
+## Practice Exercise
+
+Create a simple Book API with the following endpoints:
+- GET /api/books - Get all books
+- GET /api/books/{id} - Get book by ID
+- POST /api/books - Create a new book
+- PUT /api/books/{id} - Update a book
+- DELETE /api/books/{id} - Delete a book
+
+Include proper validation, error handling, and documentation with Swagger.
+
+## Key Takeaways
+
+- ASP.NET Core is a modern, cross-platform web framework
+- It uses a middleware pipeline for request processing
+- Built-in dependency injection promotes loose coupling
+- MVC pattern separates concerns effectively
+- RESTful APIs follow standard HTTP conventions
+- Security and performance are built-in considerations
+- Testing and deployment are streamlined with modern tooling"
         }
     };
 }

@@ -5,7 +5,11 @@ import { LessonCard } from "../components/LessonCard";
 import { Progress } from "../components/Progress";
 import { useProgress } from "../contexts/ProgressContext";
 import { useAuth } from "../contexts/AuthContext";
+import { Login } from "../components/Login";
+import { Register } from "../components/Register";
 import Sidebar from "../components/Sidebar";
+import Footer from "../components/Footer";
+import Profile from "./Profile";
 import "../App.css";
 
 const TABS = [
@@ -14,7 +18,8 @@ const TABS = [
   'ASP.NET Core Overview',
   'Entity Framework Core',
   '.NET Libraries & Tools',
-  'Advanced Topics'
+  'Advanced Topics',
+  'Profile'
 ];
 
 export default function Home() {
@@ -23,8 +28,11 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(TABS[0]);
-  const { markTopicComplete, markLessonComplete, isTopicComplete, addTimeSpent } = useProgress();
-  const { user } = useAuth();
+  const [searchInput, setSearchInput] = useState('');
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const { markTopicComplete, isTopicComplete, addTimeSpent } = useProgress();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     let isMounted = true;
@@ -63,17 +71,11 @@ export default function Home() {
     };
   }, [activeTab, user, addTimeSpent]);
 
-  const handleLessonComplete = (lessonId: number) => {
-    markLessonComplete(lessonId.toString());
-    // Also mark the current topic as complete if this is the first lesson
-    if (!isTopicComplete(activeTab)) {
-      markTopicComplete(activeTab);
-    }
-  };
 
   const handleMarkTopicComplete = () => {
     markTopicComplete(activeTab);
   };
+
 
   const renderContent = () => {
     if (activeTab === 'Introduction to .NET') {
@@ -81,6 +83,85 @@ export default function Home() {
         <div>
           <h2>Introduction to .NET</h2>
           <p>Welcome to your .NET learning journey! Master the fundamentals of Microsoft's powerful development platform.</p>
+          
+          {/* Search/Input Section */}
+          <section className="card" style={{ marginTop: 24, background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1))', border: '1px solid #3b82f6' }}>
+            <h3 style={{ color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              🔍 Search Learning Topics
+            </h3>
+            <p style={{ marginBottom: 16 }}>What would you like to learn about .NET today? Type a topic or question below:</p>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="e.g., variables, loops, classes, web APIs..."
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'inherit',
+                  fontSize: '16px',
+                  outline: 'none',
+                  transition: 'all 0.2s ease'
+                }}
+                onFocus={(e) => {
+                  e.target.style.border = '1px solid #3b82f6';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+              <button
+                onClick={() => {
+                  if (searchInput.trim()) {
+                    alert(`Searching for: "${searchInput}"\n\nThis feature will help you find relevant lessons and topics!`);
+                  } else {
+                    alert('Please enter a search term first!');
+                  }
+                }}
+                style={{
+                  padding: '12px 20px',
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+                onMouseOver={(e) => {
+                  (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
+                  (e.target as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                }}
+                onMouseOut={(e) => {
+                  (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
+                  (e.target as HTMLButtonElement).style.boxShadow = 'none';
+                }}
+              >
+                🔍 Search
+              </button>
+            </div>
+            {searchInput && (
+              <div style={{
+                marginTop: 12,
+                padding: '8px 12px',
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid #10b981',
+                borderRadius: '6px',
+                fontSize: '14px',
+                color: '#6ee7b7'
+              }}>
+                💡 Searching for: <strong>"{searchInput}"</strong>
+              </div>
+            )}
+          </section>
           
           {/* What is .NET Section */}
           <section className="card" style={{ marginTop: 24 }}>
@@ -97,7 +178,7 @@ export default function Home() {
           {/* Key Concepts */}
           <section className="card" style={{ marginTop: 16 }}>
             <h3>🔑 Key Concepts to Master</h3>
-            <div style={{ display: 'grid', gap: '16px', marginTop: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: 12 }}>
               <div style={{ padding: '12px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid #3b82f6' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#60a5fa' }}>🏗️ .NET Runtime</h4>
                 <p style={{ margin: 0, fontSize: '14px' }}>The execution environment that handles running .NET applications, including garbage collection and JIT compilation.</p>
@@ -214,27 +295,14 @@ export default function Home() {
           {lessons.length > 0 && (
             <section style={{ marginTop: 24 }}>
               <h3>📚 Additional Lessons</h3>
-              <div style={{ marginTop: 16 }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '16px',
+                marginTop: 16
+              }}>
                 {lessons.map((l) => (
-                  <div key={l.id} style={{ marginBottom: 16 }}>
-                    <LessonCard lesson={l} />
-                    {user && (
-                      <button
-                        onClick={() => handleLessonComplete(l.id)}
-                        style={{
-                          marginTop: 8,
-                          padding: '8px 16px',
-                          background: '#10b981',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Mark as Complete
-                      </button>
-                    )}
-                  </div>
+                  <LessonCard key={l.id} lesson={l} />
                 ))}
               </div>
             </section>
@@ -323,65 +391,15 @@ export default function Home() {
           {error && <p style={{ color: "red" }}>Error loading lessons: {error}</p>}
           {lessons.length > 0 && (
             <section style={{ marginTop: 24 }}>
-              <h3>📖 Interactive Lessons</h3>
-              <p style={{ marginBottom: 16, color: '#9ca3af' }}>
-                Work through these hands-on lessons to master C# fundamentals. Each lesson includes explanations, code examples, and practical exercises.
-              </p>
-              <div style={{ display: 'grid', gap: '16px', marginTop: 16 }}>
-                {lessons.map((lesson, index) => (
-                  <div key={lesson.id} style={{
-                    padding: '20px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    transition: 'all 0.2s ease'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                      <div style={{
-                        background: `linear-gradient(135deg, ${['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#22c55e', '#06b6d4', '#f97316'][index % 8]}, ${['#1d4ed8', '#059669', '#d97706', '#7c3aed', '#be185d', '#16a34a', '#0891b2', '#ea580c'][index % 8]})`,
-                        color: 'white',
-                        borderRadius: '50%',
-                        width: '40px',
-                        height: '40px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '18px',
-                        fontWeight: 'bold',
-                        flexShrink: 0
-                      }}>
-                        {lesson.id}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600' }}>
-                          {lesson.title}
-                        </h4>
-                        <p style={{ margin: '0 0 12px 0', color: '#9ca3af', fontSize: '14px' }}>
-                          {lesson.description}
-                        </p>
-                        <LessonCard lesson={lesson} />
-                        {user && (
-                          <button
-                            onClick={() => handleLessonComplete(lesson.id)}
-                            style={{
-                              marginTop: 12,
-                              padding: '10px 20px',
-                              background: 'linear-gradient(135deg, #10b981, #059669)',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              fontWeight: '500',
-                              fontSize: '14px',
-                              transition: 'all 0.2s ease'
-                            }}
-                          >
-                            ✓ Mark as Complete
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+              <h3>📚 Additional Lessons</h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '16px',
+                marginTop: 16
+              }}>
+                {lessons.map((l) => (
+                  <LessonCard key={l.id} lesson={l} />
                 ))}
               </div>
             </section>
@@ -508,7 +526,7 @@ export default function Home() {
                   const answers = { q1: 'a', q2: 'b', q3: 'c' };
                   let score = 0;
                   Object.entries(answers).forEach(([question, correct]) => {
-                    const selected = document.querySelector(`input[name="${question}"]:checked`)?.value;
+                    const selected = (document.querySelector(`input[name="${question}"]:checked`) as HTMLInputElement)?.value;
                     if (selected === correct) score++;
                   });
                   alert(`You scored ${score}/3! ${score === 3 ? '🎉 Perfect!' : score === 2 ? '👍 Great job!' : '📚 Keep studying!'}`);
@@ -657,6 +675,268 @@ export default function Home() {
       );
     }
 
+    if (activeTab === 'ASP.NET Core Overview') {
+      return (
+        <div>
+          <h2>ASP.NET Core Overview</h2>
+          <p>Learn to build modern, high-performance web applications and APIs with ASP.NET Core - Microsoft's cross-platform web framework.</p>
+          
+          {/* What is ASP.NET Core Section */}
+          <section className="card" style={{ marginTop: 24 }}>
+            <h3>🌐 What is ASP.NET Core?</h3>
+            <p>ASP.NET Core is a cross-platform, high-performance framework for building modern, cloud-enabled, Internet-connected applications.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: 16 }}>
+              <div style={{ padding: '16px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid #3b82f6' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#60a5fa' }}>🚀 High Performance</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Built for speed with minimal overhead and optimized for cloud deployment.</p>
+              </div>
+              <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid #10b981' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#6ee7b7' }}>🌍 Cross-Platform</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Runs on Windows, macOS, and Linux. Deploy anywhere.</p>
+              </div>
+              <div style={{ padding: '16px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px', border: '1px solid #f59e0b' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#fbbf24' }}>☁️ Cloud-Ready</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Built-in support for Docker, Azure, AWS, and other cloud platforms.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Key Features */}
+          <section className="card" style={{ marginTop: 16 }}>
+            <h3>⭐ Key Features</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginTop: 16 }}>
+              <div style={{ padding: '16px', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '8px', border: '1px solid #8b5cf6' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#c4b5fd' }}>🏗️ MVC Architecture</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Model-View-Controller pattern for organized, testable code structure.</p>
+              </div>
+              <div style={{ padding: '16px', background: 'rgba(236, 72, 153, 0.1)', borderRadius: '8px', border: '1px solid #ec4899' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#f9a8d4' }}>🔌 Dependency Injection</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Built-in DI container for loose coupling and better testability.</p>
+              </div>
+              <div style={{ padding: '16px', background: 'rgba(34, 197, 94, 0.1)', borderRadius: '8px', border: '1px solid #22c55e' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#86efac' }}>🛡️ Security</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Built-in authentication, authorization, and data protection.</p>
+              </div>
+              <div style={{ padding: '16px', background: 'rgba(6, 182, 212, 0.1)', borderRadius: '8px', border: '1px solid #06b6d4' }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#67e8f9' }}>📡 Web APIs</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Create RESTful APIs with automatic OpenAPI/Swagger documentation.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Application Types */}
+          <section className="card" style={{ marginTop: 16 }}>
+            <h3>🎯 What Can You Build?</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginTop: 16 }}>
+              <div style={{ padding: '20px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '12px', border: '1px solid #3b82f6', textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>🌐</div>
+                <h4 style={{ margin: '0 0 8px 0', color: '#60a5fa' }}>Web Applications</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Dynamic websites with Razor Pages or MVC</p>
+              </div>
+              <div style={{ padding: '20px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', border: '1px solid #10b981', textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>📡</div>
+                <h4 style={{ margin: '0 0 8px 0', color: '#6ee7b7' }}>REST APIs</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Backend services for mobile and web apps</p>
+              </div>
+              <div style={{ padding: '20px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '12px', border: '1px solid #f59e0b', textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>⚡</div>
+                <h4 style={{ margin: '0 0 8px 0', color: '#fbbf24' }}>Real-time Apps</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>SignalR for live chat and notifications</p>
+              </div>
+              <div style={{ padding: '20px', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '12px', border: '1px solid #8b5cf6', textAlign: 'center' }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔧</div>
+                <h4 style={{ margin: '0 0 8px 0', color: '#c4b5fd' }}>Microservices</h4>
+                <p style={{ margin: 0, fontSize: '14px' }}>Scalable, distributed applications</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Getting Started */}
+          <section className="card" style={{ marginTop: 16 }}>
+            <h3>🚀 Getting Started</h3>
+            <p>Create your first ASP.NET Core application in minutes:</p>
+            
+            <div style={{ marginTop: 16 }}>
+              <h4 style={{ color: '#60a5fa', marginBottom: 12 }}>1. Create a New Project</h4>
+              <div style={{
+                background: '#1e1e1e',
+                padding: '16px',
+                borderRadius: '8px',
+                fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+                fontSize: '14px',
+                color: '#d4d4d4',
+                marginBottom: 16
+              }}>
+                <div style={{ color: '#6a9955' }}># Create a new web application</div>
+                <div>dotnet new webapp -n MyWebApp</div>
+                <br />
+                <div style={{ color: '#6a9955' }}># Or create a Web API</div>
+                <div>dotnet new webapi -n MyApi</div>
+              </div>
+
+              <h4 style={{ color: '#6ee7b7', marginBottom: 12 }}>2. Run Your Application</h4>
+              <div style={{
+                background: '#1e1e1e',
+                padding: '16px',
+                borderRadius: '8px',
+                fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+                fontSize: '14px',
+                color: '#d4d4d4',
+                marginBottom: 16
+              }}>
+                <div>cd MyWebApp</div>
+                <div>dotnet run</div>
+                <br />
+                <div style={{ color: '#6a9955' }}># Your app will be available at https://localhost:5001</div>
+              </div>
+
+              <h4 style={{ color: '#fbbf24', marginBottom: 12 }}>3. Basic Controller Example</h4>
+              <div style={{
+                background: '#1e1e1e',
+                padding: '16px',
+                borderRadius: '8px',
+                fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+                fontSize: '14px',
+                color: '#d4d4d4'
+              }}>
+                <div style={{ color: '#569cd6' }}>using</div>
+                <div style={{ color: '#d4d4d4', marginLeft: '20px' }}>Microsoft.AspNetCore.Mvc;</div>
+                <br />
+                <div style={{ color: '#569cd6' }}>namespace</div>
+                <div style={{ color: '#4ec9b0', display: 'inline', marginLeft: '8px' }}>MyWebApp.Controllers</div>
+                <div style={{ color: '#d4d4d4' }}>{'{'}</div>
+                <div style={{ marginLeft: '20px' }}>
+                  <div style={{ color: '#569cd6' }}>public</div>
+                  <div style={{ color: '#569cd6', display: 'inline', marginLeft: '8px' }}>class</div>
+                  <div style={{ color: '#4ec9b0', display: 'inline', marginLeft: '8px' }}>HomeController</div>
+                  <div style={{ color: '#d4d4d4', display: 'inline' }}> : </div>
+                  <div style={{ color: '#4ec9b0', display: 'inline' }}>Controller</div>
+                  <div style={{ color: '#d4d4d4' }}>{'{'}</div>
+                  <div style={{ marginLeft: '20px' }}>
+                    <div style={{ color: '#569cd6' }}>public</div>
+                    <div style={{ color: '#4ec9b0', display: 'inline', marginLeft: '8px' }}>IActionResult</div>
+                    <div style={{ color: '#dcdcaa', display: 'inline', marginLeft: '8px' }}>Index</div>
+                    <div style={{ color: '#d4d4d4', display: 'inline' }}>{'()'}</div>
+                    <div style={{ color: '#d4d4d4' }}>{'{'}</div>
+                    <div style={{ marginLeft: '20px' }}>
+                      <div style={{ color: '#569cd6' }}>return</div>
+                      <div style={{ color: '#dcdcaa', display: 'inline', marginLeft: '8px' }}>View</div>
+                      <div style={{ color: '#d4d4d4', display: 'inline' }}>{'()'}</div>
+                      <div style={{ color: '#d4d4d4' }}>;</div>
+                    </div>
+                    <div style={{ color: '#d4d4d4' }}>{'}'}</div>
+                  </div>
+                  <div style={{ color: '#d4d4d4' }}>{'}'}</div>
+                </div>
+                <div style={{ color: '#d4d4d4' }}>{'}'}</div>
+              </div>
+            </div>
+          </section>
+
+          {/* Learning Path */}
+          <section className="card" style={{ marginTop: 16 }}>
+            <h3>🛤️ ASP.NET Core Learning Path</h3>
+            <div style={{ marginTop: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <span style={{ background: '#3b82f6', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', marginRight: '16px', fontWeight: 'bold' }}>1</span>
+                <div>
+                  <strong style={{ color: '#60a5fa' }}>Fundamentals:</strong>
+                  <span style={{ marginLeft: '8px' }}>Controllers, Actions, Routing, and Middleware</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <span style={{ background: '#10b981', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', marginRight: '16px', fontWeight: 'bold' }}>2</span>
+                <div>
+                  <strong style={{ color: '#6ee7b7' }}>Views & Models:</strong>
+                  <span style={{ marginLeft: '8px' }}>Razor syntax, Model binding, and Validation</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <span style={{ background: '#f59e0b', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', marginRight: '16px', fontWeight: 'bold' }}>3</span>
+                <div>
+                  <strong style={{ color: '#fbbf24' }}>Data Access:</strong>
+                  <span style={{ marginLeft: '8px' }}>Entity Framework Core integration</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <span style={{ background: '#8b5cf6', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', marginRight: '16px', fontWeight: 'bold' }}>4</span>
+                <div>
+                  <strong style={{ color: '#c4b5fd' }}>Security:</strong>
+                  <span style={{ marginLeft: '8px' }}>Authentication, Authorization, and Identity</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <span style={{ background: '#ec4899', color: 'white', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', marginRight: '16px', fontWeight: 'bold' }}>5</span>
+                <div>
+                  <strong style={{ color: '#f9a8d4' }}>Advanced Topics:</strong>
+                  <span style={{ marginLeft: '8px' }}>SignalR, Background Services, and Performance</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Interactive Lessons */}
+          {lessons.length > 0 && (
+            <section style={{ marginTop: 24 }}>
+              <h3>📚 Additional Lessons</h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '16px',
+                marginTop: 16
+              }}>
+                {lessons.map((l) => (
+                  <LessonCard key={l.id} lesson={l} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Completion Button */}
+          {user && !isTopicComplete(activeTab) && (
+            <div style={{ marginTop: 32, textAlign: 'center' }}>
+              <button
+                onClick={handleMarkTopicComplete}
+                style={{
+                  padding: '16px 32px',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '16px',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                }}
+              >
+                🎉 Complete ASP.NET Core Overview
+              </button>
+            </div>
+          )}
+          {user && isTopicComplete(activeTab) && (
+            <div style={{
+              marginTop: 32,
+              padding: '20px',
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid #10b981',
+              borderRadius: '12px',
+              textAlign: 'center',
+              color: '#6ee7b7'
+            }}>
+              <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎉</div>
+              <h3 style={{ margin: '0 0 8px 0' }}>Congratulations!</h3>
+              <p style={{ margin: 0 }}>You've completed ASP.NET Core Overview! Ready for Entity Framework Core?</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Handle Profile page
+    if (activeTab === 'Profile') {
+      return <Profile />;
+    }
+
     // For other tabs, show placeholder content with completion button
     return (
       <section className="card">
@@ -722,13 +1002,80 @@ export default function Home() {
             ☰
           </button>
           <h1 className="page-title">{activeTab}</h1>
+          
+          {/* Sign In/User Section */}
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {user ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{
+                  fontSize: '14px',
+                  color: '#9ca3af',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  👤 {user.email}
+                </span>
+                <button
+                  onClick={logout}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    color: '#f87171',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    (e.target as HTMLButtonElement).style.background = 'rgba(239, 68, 68, 0.2)';
+                  }}
+                  onMouseOut={(e) => {
+                    (e.target as HTMLButtonElement).style.background = 'rgba(239, 68, 68, 0.1)';
+                  }}
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setAuthMode('login');
+                  setShowAuthModal(true);
+                }}
+                className="nav-link"
+              >
+                Sign In
+              </button>
+            )}
+          </div>
         </header>
 
         <main className="main">
           <Progress />
           {renderContent()}
+          <Footer pageContext={activeTab} />
         </main>
       </div>
+
+      {/* Authentication Modal */}
+      {showAuthModal && (
+        <>
+          {authMode === 'login' ? (
+            <Login
+              onSwitchToRegister={() => setAuthMode('register')}
+              onClose={() => setShowAuthModal(false)}
+            />
+          ) : (
+            <Register
+              onSwitchToLogin={() => setAuthMode('login')}
+              onClose={() => setShowAuthModal(false)}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 }

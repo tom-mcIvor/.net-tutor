@@ -113,6 +113,16 @@ export default function Sidebar({
                   <div className="user-menu-item" style={{ opacity: 0.7, cursor: 'default' }}>
                     {user.email}
                   </div>
+                  <button
+                    className="user-menu-item"
+                    onClick={() => {
+                      setActiveTab('Profile');
+                      setShowUserMenu(false);
+                      setSidebarOpen(false);
+                    }}
+                  >
+                    👤 Profile
+                  </button>
                   <button className="user-menu-item" onClick={handleLogout}>
                     Sign Out
                   </button>

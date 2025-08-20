@@ -26,8 +26,14 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onClose }) 
     }
   };
 
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="auth-modal">
+    <div className="auth-modal" onClick={handleOverlayClick}>
       <div className="auth-modal-content">
         <div className="auth-header">
           <h2>Sign Up</h2>

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DotNetTutor.Api.Services;
+using DotNetTutor.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace DotNetTutor.Api.Controllers;
 
@@ -7,6 +9,12 @@ namespace DotNetTutor.Api.Controllers;
 [Route("api/lessons")]
 public class LessonsController : ControllerBase
 {
+    private readonly ApplicationDbContext _context;
+
+    public LessonsController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
     [HttpGet]
     public IActionResult GetAll() => Ok(LessonContentService.CSharpBasicsLessons);
 
@@ -27,6 +35,13 @@ public class LessonsController : ControllerBase
             .Select(l => new { l.Id, l.Title, l.Description })
             .ToArray();
         return Ok(topics);
+    }
+
+    [HttpGet("database")]
+    public async Task<IActionResult> GetFromDatabase()
+    {
+        var lessons = await _context.Lessons.ToListAsync();
+        return Ok(lessons);
     }
 }
 

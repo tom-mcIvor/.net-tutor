@@ -14,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseInMemoryDatabase("DotNetTutorDb"));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -56,7 +56,11 @@ builder.Services.AddAuthentication(options =>
 
 // Services
 builder.Services.AddScoped<JwtService>();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -74,11 +78,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Ensure database is created
+// Apply database migrations
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
+    context.Database.Migrate();
 }
 
 if (app.Environment.IsDevelopment())
