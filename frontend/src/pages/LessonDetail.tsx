@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getLesson } from "../api/lessons";
+import { getLesson, getAspNetCoreLesson } from "../api/lessons";
 import type { Lesson } from "../types/lesson";
 
 export default function LessonDetail() {
@@ -16,10 +16,27 @@ export default function LessonDetail() {
       setLoading(false);
       return;
     }
-    getLesson(id)
-      .then(setLesson)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+
+    const fetchLesson = async () => {
+      try {
+        // First try C# Basics lessons
+        const lesson = await getLesson(id);
+        setLesson(lesson);
+      } catch (error) {
+        try {
+          // If that fails, try ASP.NET Core lessons
+          const aspNetLesson = await getAspNetCoreLesson(id);
+          setLesson(aspNetLesson);
+        } catch (aspNetError) {
+          // If both fail, show error
+          setError(`Lesson not found (ID: ${id})`);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLesson();
   }, [id]);
 
   if (loading) return <p>Loading lesson...</p>;

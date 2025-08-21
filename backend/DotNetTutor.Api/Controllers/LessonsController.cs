@@ -37,6 +37,28 @@ public class LessonsController : ControllerBase
         return Ok(topics);
     }
 
+    [HttpGet("aspnetcore")]
+    public IActionResult GetAspNetCoreLessons() => Ok(LessonContentService.AspNetCoreLessons);
+
+    [HttpGet("aspnetcore/{id:int}")]
+    public IActionResult GetAspNetCoreLessonById(int id)
+    {
+        var lesson = Array.Find(LessonContentService.AspNetCoreLessons, l => l.Id == id);
+        return lesson is null ? NotFound() : Ok(lesson);
+    }
+
+    [HttpGet("aspnetcore/count")]
+    public IActionResult GetAspNetCoreLessonCount() => Ok(new { count = LessonContentService.AspNetCoreLessons.Length });
+
+    [HttpGet("aspnetcore/topics")]
+    public IActionResult GetAspNetCoreTopics()
+    {
+        var topics = LessonContentService.AspNetCoreLessons
+            .Select(l => new { l.Id, l.Title, l.Description })
+            .ToArray();
+        return Ok(topics);
+    }
+
     [HttpGet("database")]
     public async Task<IActionResult> GetFromDatabase()
     {

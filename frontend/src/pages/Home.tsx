@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getLessons } from "../api/lessons";
+import { getLessons, getAspNetCoreLessons } from "../api/lessons";
 import type { Lesson } from "../types/lesson";
 import { LessonCard } from "../components/LessonCard";
 import { Progress } from "../components/Progress";
@@ -24,8 +24,11 @@ const TABS = [
 
 export default function Home() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [aspNetCoreLessons, setAspNetCoreLessons] = useState<Lesson[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [aspNetCoreError, setAspNetCoreError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [aspNetCoreLoading, setAspNetCoreLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [searchInput, setSearchInput] = useState('');
@@ -53,6 +56,30 @@ export default function Home() {
     };
 
     fetchLessons();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchAspNetCoreLessons = async () => {
+      setAspNetCoreLoading(true);
+      setAspNetCoreError(null);
+      try {
+        const data = await getAspNetCoreLessons();
+        if (isMounted) setAspNetCoreLessons(data);
+      } catch (err) {
+        if (!isMounted) return;
+        const message = err instanceof Error ? err.message : String(err);
+        setAspNetCoreError(message);
+      } finally {
+        if (isMounted) setAspNetCoreLoading(false);
+      }
+    };
+
+    fetchAspNetCoreLessons();
     return () => {
       isMounted = false;
     };
@@ -178,18 +205,18 @@ export default function Home() {
           {/* Key Concepts */}
           <section className="card" style={{ marginTop: 16 }}>
             <h3>🔑 Key Concepts to Master</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: 12 }}>
-              <div style={{ padding: '12px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid #3b82f6' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginTop: 12 }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #3b82f6', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#60a5fa' }}>🏗️ .NET Runtime</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>The execution environment that handles running .NET applications, including garbage collection and JIT compilation.</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>The execution environment that handles running .NET applications, including garbage collection and JIT compilation.</p>
               </div>
-              <div style={{ padding: '12px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid #10b981' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #10b981', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#6ee7b7' }}>📚 Base Class Library (BCL)</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>A comprehensive set of classes, interfaces, and value types that provide core functionality.</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>A comprehensive set of classes, interfaces, and value types that provide core functionality.</p>
               </div>
-              <div style={{ padding: '12px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px', border: '1px solid #f59e0b' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #f59e0b', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#fbbf24' }}>⚡ Common Language Runtime (CLR)</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Manages memory, executes code, and provides services like security and exception handling.</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Manages memory, executes code, and provides services like security and exception handling.</p>
               </div>
             </div>
           </section>
@@ -270,43 +297,25 @@ export default function Home() {
           {/* Interactive Elements */}
           <section className="card" style={{ marginTop: 16 }}>
             <h3>🎮 Interactive Learning</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px', marginTop: 12 }}>
-              <div style={{ padding: '16px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid #3b82f6', textAlign: 'center' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '32px', marginTop: 12 }}>
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
                 <div style={{ fontSize: '24px', marginBottom: '8px' }}>🎯</div>
                 <h4 style={{ margin: '0 0 8px 0' }}>Practice Exercises</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Hands-on coding challenges to reinforce concepts</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Hands-on coding challenges to reinforce concepts</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid #10b981', textAlign: 'center' }}>
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
                 <div style={{ fontSize: '24px', marginBottom: '8px' }}>📊</div>
                 <h4 style={{ margin: '0 0 8px 0' }}>Progress Tracking</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Monitor your learning journey and achievements</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Monitor your learning journey and achievements</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px', border: '1px solid #f59e0b', textAlign: 'center' }}>
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
                 <div style={{ fontSize: '24px', marginBottom: '8px' }}>🏆</div>
                 <h4 style={{ margin: '0 0 8px 0' }}>Achievements</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Earn badges as you complete learning milestones</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Earn badges as you complete learning milestones</p>
               </div>
             </div>
           </section>
 
-          {/* API Lessons */}
-          {loading && <p>Loading additional lessons...</p>}
-          {error && <p style={{ color: "red" }}>Error loading lessons: {error}</p>}
-          {lessons.length > 0 && (
-            <section style={{ marginTop: 24 }}>
-              <h3>📚 Additional Lessons</h3>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '16px',
-                marginTop: 16
-              }}>
-                {lessons.map((l) => (
-                  <LessonCard key={l.id} lesson={l} />
-                ))}
-              </div>
-            </section>
-          )}
 
           {/* Completion Button */}
           {user && !isTopicComplete(activeTab) && (
@@ -358,30 +367,30 @@ export default function Home() {
           <section className="card" style={{ marginTop: 24 }}>
             <h3>🎯 What You'll Learn</h3>
             <p>This comprehensive C# basics course covers everything you need to start programming in C#:</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginTop: 16 }}>
-              <div style={{ padding: '16px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid #3b82f6' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: 16 }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #3b82f6', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#60a5fa' }}>📝 Variables & Data Types</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Learn to store and work with different types of data in C#</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Learn to store and work with different types of data in C#</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid #10b981' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #10b981', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#6ee7b7' }}>⚡ Operators & Expressions</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Master arithmetic, comparison, and logical operations</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Master arithmetic, comparison, and logical operations</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px', border: '1px solid #f59e0b' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #f59e0b', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#fbbf24' }}>🔀 Control Structures</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Make decisions and repeat code with if statements and loops</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Make decisions and repeat code with if statements and loops</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '8px', border: '1px solid #8b5cf6' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #8b5cf6', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#c4b5fd' }}>🏗️ Methods & Functions</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Organize code into reusable, modular functions</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Organize code into reusable, modular functions</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(236, 72, 153, 0.1)', borderRadius: '8px', border: '1px solid #ec4899' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #ec4899', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#f9a8d4' }}>📚 Arrays & Collections</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Store and manipulate multiple values efficiently</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Store and manipulate multiple values efficiently</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(34, 197, 94, 0.1)', borderRadius: '8px', border: '1px solid #22c55e' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #22c55e', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#86efac' }}>🎯 Object-Oriented Programming</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Introduction to classes, objects, and OOP principles</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Introduction to classes, objects, and OOP principles</p>
               </div>
             </div>
           </section>
@@ -391,7 +400,7 @@ export default function Home() {
           {error && <p style={{ color: "red" }}>Error loading lessons: {error}</p>}
           {lessons.length > 0 && (
             <section style={{ marginTop: 24 }}>
-              <h3>📚 Additional Lessons</h3>
+              <h3>📚 C# Basics Lessons</h3>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
@@ -615,21 +624,21 @@ export default function Home() {
             {/* Practice Resources */}
             <div>
               <h4 style={{ color: '#a78bfa', marginBottom: 16 }}>🚀 Keep Practicing</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
-                <div style={{ padding: '16px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid #3b82f6', textAlign: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '32px' }}>
+                <div style={{ textAlign: 'center', padding: '8px 0' }}>
                   <div style={{ fontSize: '24px', marginBottom: '8px' }}>🎯</div>
                   <h5 style={{ margin: '0 0 8px 0' }}>LeetCode Easy</h5>
-                  <p style={{ margin: 0, fontSize: '14px' }}>Practice basic algorithms and data structures</p>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Practice basic algorithms and data structures</p>
                 </div>
-                <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid #10b981', textAlign: 'center' }}>
+                <div style={{ textAlign: 'center', padding: '8px 0' }}>
                   <div style={{ fontSize: '24px', marginBottom: '8px' }}>📚</div>
                   <h5 style={{ margin: '0 0 8px 0' }}>Microsoft Learn</h5>
-                  <p style={{ margin: 0, fontSize: '14px' }}>Official C# tutorials and exercises</p>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Official C# tutorials and exercises</p>
                 </div>
-                <div style={{ padding: '16px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px', border: '1px solid #f59e0b', textAlign: 'center' }}>
+                <div style={{ textAlign: 'center', padding: '8px 0' }}>
                   <div style={{ fontSize: '24px', marginBottom: '8px' }}>💻</div>
                   <h5 style={{ margin: '0 0 8px 0' }}>Build Projects</h5>
-                  <p style={{ margin: 0, fontSize: '14px' }}>Create console apps, calculators, and games</p>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Create console apps, calculators, and games</p>
                 </div>
               </div>
             </div>
@@ -681,22 +690,42 @@ export default function Home() {
           <h2>ASP.NET Core Overview</h2>
           <p>Learn to build modern, high-performance web applications and APIs with ASP.NET Core - Microsoft's cross-platform web framework.</p>
           
+          {/* Lessons Section - Moved to top */}
+          {aspNetCoreLoading && <p>Loading lessons...</p>}
+          {aspNetCoreError && <p style={{ color: "red" }}>Error loading lessons: {aspNetCoreError}</p>}
+          {aspNetCoreLessons.length > 0 && (
+            <section style={{ marginTop: 24 }}>
+              <h3>📚 Lessons</h3>
+              <p>Click on any lesson below to start learning:</p>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '16px',
+                marginTop: 16
+              }}>
+                {aspNetCoreLessons.map((lesson) => (
+                  <LessonCard key={lesson.id} lesson={lesson} />
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* What is ASP.NET Core Section */}
           <section className="card" style={{ marginTop: 24 }}>
             <h3>🌐 What is ASP.NET Core?</h3>
             <p>ASP.NET Core is a cross-platform, high-performance framework for building modern, cloud-enabled, Internet-connected applications.</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: 16 }}>
-              <div style={{ padding: '16px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid #3b82f6' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginTop: 16 }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #3b82f6', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#60a5fa' }}>🚀 High Performance</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Built for speed with minimal overhead and optimized for cloud deployment.</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Built for speed with minimal overhead and optimized for cloud deployment.</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', border: '1px solid #10b981' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #10b981', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#6ee7b7' }}>🌍 Cross-Platform</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Runs on Windows, macOS, and Linux. Deploy anywhere.</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Runs on Windows, macOS, and Linux. Deploy anywhere.</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '8px', border: '1px solid #f59e0b' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #f59e0b', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#fbbf24' }}>☁️ Cloud-Ready</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Built-in support for Docker, Azure, AWS, and other cloud platforms.</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Built-in support for Docker, Azure, AWS, and other cloud platforms.</p>
               </div>
             </div>
           </section>
@@ -704,22 +733,22 @@ export default function Home() {
           {/* Key Features */}
           <section className="card" style={{ marginTop: 16 }}>
             <h3>⭐ Key Features</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginTop: 16 }}>
-              <div style={{ padding: '16px', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '8px', border: '1px solid #8b5cf6' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: 16 }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #8b5cf6', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#c4b5fd' }}>🏗️ MVC Architecture</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Model-View-Controller pattern for organized, testable code structure.</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Model-View-Controller pattern for organized, testable code structure.</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(236, 72, 153, 0.1)', borderRadius: '8px', border: '1px solid #ec4899' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #ec4899', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#f9a8d4' }}>🔌 Dependency Injection</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Built-in DI container for loose coupling and better testability.</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Built-in DI container for loose coupling and better testability.</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(34, 197, 94, 0.1)', borderRadius: '8px', border: '1px solid #22c55e' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #22c55e', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#86efac' }}>🛡️ Security</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Built-in authentication, authorization, and data protection.</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Built-in authentication, authorization, and data protection.</p>
               </div>
-              <div style={{ padding: '16px', background: 'rgba(6, 182, 212, 0.1)', borderRadius: '8px', border: '1px solid #06b6d4' }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #06b6d4', paddingLeft: '16px' }}>
                 <h4 style={{ margin: '0 0 8px 0', color: '#67e8f9' }}>📡 Web APIs</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Create RESTful APIs with automatic OpenAPI/Swagger documentation.</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Create RESTful APIs with automatic OpenAPI/Swagger documentation.</p>
               </div>
             </div>
           </section>
@@ -727,26 +756,26 @@ export default function Home() {
           {/* Application Types */}
           <section className="card" style={{ marginTop: 16 }}>
             <h3>🎯 What Can You Build?</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginTop: 16 }}>
-              <div style={{ padding: '20px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '12px', border: '1px solid #3b82f6', textAlign: 'center' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px', marginTop: 16 }}>
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
                 <div style={{ fontSize: '32px', marginBottom: '12px' }}>🌐</div>
                 <h4 style={{ margin: '0 0 8px 0', color: '#60a5fa' }}>Web Applications</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Dynamic websites with Razor Pages or MVC</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Dynamic websites with Razor Pages or MVC</p>
               </div>
-              <div style={{ padding: '20px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '12px', border: '1px solid #10b981', textAlign: 'center' }}>
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
                 <div style={{ fontSize: '32px', marginBottom: '12px' }}>📡</div>
                 <h4 style={{ margin: '0 0 8px 0', color: '#6ee7b7' }}>REST APIs</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Backend services for mobile and web apps</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Backend services for mobile and web apps</p>
               </div>
-              <div style={{ padding: '20px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '12px', border: '1px solid #f59e0b', textAlign: 'center' }}>
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
                 <div style={{ fontSize: '32px', marginBottom: '12px' }}>⚡</div>
                 <h4 style={{ margin: '0 0 8px 0', color: '#fbbf24' }}>Real-time Apps</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>SignalR for live chat and notifications</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>SignalR for live chat and notifications</p>
               </div>
-              <div style={{ padding: '20px', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '12px', border: '1px solid #8b5cf6', textAlign: 'center' }}>
+              <div style={{ textAlign: 'center', padding: '8px 0' }}>
                 <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔧</div>
                 <h4 style={{ margin: '0 0 8px 0', color: '#c4b5fd' }}>Microservices</h4>
-                <p style={{ margin: 0, fontSize: '14px' }}>Scalable, distributed applications</p>
+                <p style={{ margin: 0, fontSize: '14px', color: '#9ca3af' }}>Scalable, distributed applications</p>
               </div>
             </div>
           </section>
@@ -875,22 +904,49 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Interactive Lessons */}
-          {lessons.length > 0 && (
-            <section style={{ marginTop: 24 }}>
-              <h3>📚 Additional Lessons</h3>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '16px',
-                marginTop: 16
-              }}>
-                {lessons.map((l) => (
-                  <LessonCard key={l.id} lesson={l} />
-                ))}
+          {/* Course Topics Overview Section */}
+          <section className="card" style={{ marginTop: 16 }}>
+            <h3>📚 Course Topics</h3>
+            <p>Here's what you'll learn in our comprehensive ASP.NET Core course:</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: 16 }}>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #3b82f6', paddingLeft: '16px' }}>
+                <h4 style={{ margin: '0 0 12px 0', color: '#60a5fa' }}>🏗️ MVC Fundamentals</h4>
+                <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#9ca3af' }}>Learn the Model-View-Controller pattern and how to structure your applications.</p>
+                <ul style={{ margin: 0, paddingLeft: 20, fontSize: '14px', color: '#9ca3af' }}>
+                  <li>Controllers and Actions</li>
+                  <li>Views and Razor syntax</li>
+                  <li>Models and data binding</li>
+                </ul>
               </div>
-            </section>
-          )}
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #10b981', paddingLeft: '16px' }}>
+                <h4 style={{ margin: '0 0 12px 0', color: '#6ee7b7' }}>🔌 Dependency Injection</h4>
+                <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#9ca3af' }}>Master the built-in DI container and create loosely coupled applications.</p>
+                <ul style={{ margin: 0, paddingLeft: 20, fontSize: '14px', color: '#9ca3af' }}>
+                  <li>Service registration</li>
+                  <li>Service lifetimes</li>
+                  <li>Constructor injection</li>
+                </ul>
+              </div>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #f59e0b', paddingLeft: '16px' }}>
+                <h4 style={{ margin: '0 0 12px 0', color: '#fbbf24' }}>📡 Web API Development</h4>
+                <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#9ca3af' }}>Build RESTful APIs with automatic documentation and validation.</p>
+                <ul style={{ margin: 0, paddingLeft: 20, fontSize: '14px', color: '#9ca3af' }}>
+                  <li>API controllers</li>
+                  <li>Model validation</li>
+                  <li>OpenAPI/Swagger</li>
+                </ul>
+              </div>
+              <div style={{ padding: '12px 0', borderLeft: '4px solid #8b5cf6', paddingLeft: '16px' }}>
+                <h4 style={{ margin: '0 0 12px 0', color: '#c4b5fd' }}>🛡️ Security & Authentication</h4>
+                <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#9ca3af' }}>Implement authentication, authorization, and secure your applications.</p>
+                <ul style={{ margin: 0, paddingLeft: 20, fontSize: '14px', color: '#9ca3af' }}>
+                  <li>Identity framework</li>
+                  <li>JWT tokens</li>
+                  <li>Authorization policies</li>
+                </ul>
+              </div>
+            </div>
+          </section>
 
           {/* Completion Button */}
           {user && !isTopicComplete(activeTab) && (

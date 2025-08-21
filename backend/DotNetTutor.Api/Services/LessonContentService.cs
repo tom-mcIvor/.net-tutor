@@ -1465,4 +1465,1657 @@ Include proper validation, error handling, and documentation with Swagger.
 - Testing and deployment are streamlined with modern tooling"
         }
     };
+
+    public static readonly LessonDto[] AspNetCoreLessons = new[]
+    {
+        // Module 1: MVC Fundamentals
+        new LessonDto
+        {
+            Id = 10,
+            Title = "MVC Fundamentals",
+            Description = "Master the Model-View-Controller pattern in ASP.NET Core - the foundation of modern web application architecture.",
+            Content = @"# MVC Fundamentals in ASP.NET Core
+
+## What is MVC?
+
+MVC (Model-View-Controller) is an architectural pattern that separates an application into three interconnected components. This separation helps organize code, promotes reusability, and makes applications easier to test and maintain.
+
+## The Three Components
+
+### 🏗️ Model
+The **Model** represents data and business logic. It's responsible for:
+- Data validation
+- Business rules
+- Data access logic
+- State management
+
+```csharp
+// Example: Product Model
+public class Product
+{
+    public int Id { get; set; }
+    
+    [Required]
+    [StringLength(100)]
+    public string Name { get; set; } = string.Empty;
+    
+    [Required]
+    [Range(0.01, double.MaxValue, ErrorMessage = ""Price must be positive"")]
+    public decimal Price { get; set; }
+    
+    [StringLength(500)]
+    public string Description { get; set; } = string.Empty;
+    
+    public DateTime CreatedDate { get; set; } = DateTime.Now;
+    
+    public bool IsActive { get; set; } = true;
+}
+```
+
+### 👁️ View
+The **View** handles the presentation layer. It's responsible for:
+- Displaying data to users
+- User interface elements
+- Formatting and layout
+- User input collection
+
+```html
+@* Example: Product List View *@
+@model IEnumerable<Product>
+
+<h2>Product Catalog</h2>
+
+<div class=""product-grid"">
+    @foreach (var product in Model)
+    {
+        <div class=""product-card"">
+            <h3>@product.Name</h3>
+            <p class=""price"">$@product.Price.ToString(""F2"")</p>
+            <p class=""description"">@product.Description</p>
+            <div class=""actions"">
+                <a href=""/Products/Details/@product.Id"" class=""btn btn-primary"">View Details</a>
+                <a href=""/Products/Edit/@product.Id"" class=""btn btn-secondary"">Edit</a>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <p class=""no-products"">No products available.</p>
+}
+```
+
+### 🎮 Controller
+The **Controller** acts as an intermediary between Model and View. It:
+- Handles user input
+- Processes requests
+- Coordinates between Model and View
+- Returns appropriate responses
+
+```csharp
+// Example: Products Controller
+[Route(""Products"")]
+public class ProductsController : Controller
+{
+    private readonly IProductService _productService;
+    private readonly ILogger<ProductsController> _logger;
+
+    public ProductsController(IProductService productService, ILogger<ProductsController> logger)
+    {
+        _productService = productService;
+        _logger = logger;
+    }
+
+    // GET: Products
+    [HttpGet]
+    public async Task<IActionResult> Index()
+    {
+        try
+        {
+            var products = await _productService.GetAllActiveProductsAsync();
+            return View(products);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ""Error retrieving products"");
+            return View(""Error"");
+        }
+    }
+
+    // GET: Products/Details/5
+    [HttpGet(""Details/{id:int}"")]
+    public async Task<IActionResult> Details(int id)
+    {
+        var product = await _productService.GetProductByIdAsync(id);
+        
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        return View(product);
+    }
+
+    // GET: Products/Create
+    [HttpGet(""Create"")]
+    public IActionResult Create()
+    {
+        return View(new Product());
+    }
+
+    // POST: Products/Create
+    [HttpPost(""Create"")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(Product product)
+    {
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await _productService.CreateProductAsync(product);
+                TempData[""SuccessMessage""] = ""Product created successfully!"";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ""Error creating product"");
+                ModelState.AddModelError("""", ""An error occurred while creating the product."");
+            }
+        }
+
+        return View(product);
+    }
+
+    // GET: Products/Edit/5
+    [HttpGet(""Edit/{id:int}"")]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var product = await _productService.GetProductByIdAsync(id);
+        
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        return View(product);
+    }
+
+    // POST: Products/Edit/5
+    [HttpPost(""Edit/{id:int}"")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, Product product)
+    {
+        if (id != product.Id)
+        {
+            return BadRequest();
+        }
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await _productService.UpdateProductAsync(product);
+                TempData[""SuccessMessage""] = ""Product updated successfully!"";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ""Error updating product"");
+                ModelState.AddModelError("""", ""An error occurred while updating the product."");
+            }
+        }
+
+        return View(product);
+    }
+
+    // POST: Products/Delete/5
+    [HttpPost(""Delete/{id:int}"")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _productService.DeleteProductAsync(id);
+            TempData[""SuccessMessage""] = ""Product deleted successfully!"";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ""Error deleting product"");
+            TempData[""ErrorMessage""] = ""An error occurred while deleting the product."";
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+}
+```
+
+## MVC Flow in ASP.NET Core
+
+### 1. Request Processing
+```
+User Request → Routing → Controller → Action Method
+```
+
+### 2. Action Execution
+```
+Controller Action → Model Processing → Business Logic
+```
+
+### 3. Response Generation
+```
+Controller → View Selection → View Rendering → HTML Response
+```
+
+## Routing in MVC
+
+### Convention-Based Routing
+```csharp
+// In Program.cs or Startup.cs
+app.MapControllerRoute(
+    name: ""default"",
+    pattern: ""{controller=Home}/{action=Index}/{id?}"");
+
+// Examples:
+// /Products → ProductsController.Index()
+// /Products/Details/5 → ProductsController.Details(5)
+// /Home → HomeController.Index()
+```
+
+### Attribute Routing
+```csharp
+[Route(""api/[controller]"")]
+public class ProductsApiController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult GetAll() => Ok();
+
+    [HttpGet(""{id:int}"")]
+    public IActionResult GetById(int id) => Ok();
+
+    [HttpPost]
+    public IActionResult Create([FromBody] Product product) => Ok();
+
+    [HttpPut(""{id:int}"")]
+    public IActionResult Update(int id, [FromBody] Product product) => Ok();
+
+    [HttpDelete(""{id:int}"")]
+    public IActionResult Delete(int id) => Ok();
+}
+```
+
+## Action Results
+
+### View Results
+```csharp
+public class HomeController : Controller
+{
+    // Return a view with model
+    public IActionResult Index()
+    {
+        var model = GetData();
+        return View(model);
+    }
+
+    // Return a specific view
+    public IActionResult About()
+    {
+        return View(""AboutUs"");
+    }
+
+    // Return a partial view
+    public IActionResult GetPartial()
+    {
+        return PartialView(""_ProductCard"", product);
+    }
+}
+```
+
+### Redirect Results
+```csharp
+public class AccountController : Controller
+{
+    public IActionResult Login()
+    {
+        // Redirect to action in same controller
+        return RedirectToAction(""Dashboard"");
+    }
+
+    public IActionResult Logout()
+    {
+        // Redirect to action in different controller
+        return RedirectToAction(""Index"", ""Home"");
+    }
+
+    public IActionResult External()
+    {
+        // Redirect to external URL
+        return Redirect(""https://example.com"");
+    }
+}
+```
+
+### JSON Results
+```csharp
+[Route(""api/[controller]"")]
+public class DataController : ControllerBase
+{
+    [HttpGet(""products"")]
+    public IActionResult GetProducts()
+    {
+        var products = _service.GetProducts();
+        return Json(products);
+    }
+
+    [HttpGet(""status"")]
+    public IActionResult GetStatus()
+    {
+        return Ok(new { Status = ""Healthy"", Timestamp = DateTime.Now });
+    }
+}
+```
+
+## Model Binding
+
+### Form Data Binding
+```csharp
+[HttpPost]
+public IActionResult CreateUser(User user)
+{
+    // ASP.NET Core automatically binds form data to the User model
+    if (ModelState.IsValid)
+    {
+        // Process the user
+        return RedirectToAction(""Success"");
+    }
+    return View(user);
+}
+```
+
+### Query String Binding
+```csharp
+// URL: /Products?category=electronics&minPrice=100
+public IActionResult Search(string category, decimal? minPrice)
+{
+    // Parameters automatically bound from query string
+    var products = _service.Search(category, minPrice);
+    return View(products);
+}
+```
+
+### Route Data Binding
+```csharp
+[Route(""Products/{id:int}"")]
+public IActionResult Details(int id)
+{
+    // id parameter bound from route
+    var product = _service.GetById(id);
+    return View(product);
+}
+```
+
+## Model Validation
+
+### Data Annotations
+```csharp
+public class RegisterViewModel
+{
+    [Required(ErrorMessage = ""Email is required"")]
+    [EmailAddress(ErrorMessage = ""Invalid email format"")]
+    public string Email { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = ""Password is required"")]
+    [StringLength(100, MinimumLength = 6, ErrorMessage = ""Password must be 6-100 characters"")]
+    public string Password { get; set; } = string.Empty;
+
+    [Compare(""Password"", ErrorMessage = ""Passwords do not match"")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
+    [Range(18, 120, ErrorMessage = ""Age must be between 18 and 120"")]
+    public int Age { get; set; }
+}
+```
+
+### Controller Validation
+```csharp
+[HttpPost]
+public IActionResult Register(RegisterViewModel model)
+{
+    if (ModelState.IsValid)
+    {
+        // Process registration
+        return RedirectToAction(""Welcome"");
+    }
+
+    // Return view with validation errors
+    return View(model);
+}
+```
+
+### Custom Validation
+```csharp
+public class UniqueEmailAttribute : ValidationAttribute
+{
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    {
+        var email = value as string;
+        var userService = validationContext.GetService<IUserService>();
+        
+        if (userService.EmailExists(email))
+        {
+            return new ValidationResult(""Email already exists"");
+        }
+        
+        return ValidationResult.Success;
+    }
+}
+
+public class User
+{
+    [UniqueEmail]
+    public string Email { get; set; } = string.Empty;
+}
+```
+
+## Dependency Injection in MVC
+
+### Service Registration
+```csharp
+// Program.cs
+var builder = WebApplication.CreateBuilder(args);
+
+// Register services
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
+// Register DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString(""DefaultConnection"")));
+
+var app = builder.Build();
+```
+
+### Constructor Injection
+```csharp
+public class ProductsController : Controller
+{
+    private readonly IProductService _productService;
+    private readonly ILogger<ProductsController> _logger;
+    private readonly IMapper _mapper;
+
+    public ProductsController(
+        IProductService productService,
+        ILogger<ProductsController> logger,
+        IMapper mapper)
+    {
+        _productService = productService;
+        _logger = logger;
+        _mapper = mapper;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var products = await _productService.GetAllAsync();
+        var viewModels = _mapper.Map<List<ProductViewModel>>(products);
+        return View(viewModels);
+    }
+}
+```
+
+## ViewModels and DTOs
+
+### ViewModel Pattern
+```csharp
+// ViewModel for displaying data
+public class ProductListViewModel
+{
+    public List<ProductSummaryViewModel> Products { get; set; } = new();
+    public int TotalCount { get; set; }
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public string SearchTerm { get; set; } = string.Empty;
+    public string SortBy { get; set; } = ""Name"";
+}
+
+public class ProductSummaryViewModel
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public string FormattedPrice => $""${Price:F2}"";
+    public bool IsOnSale { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
+}
+
+// Controller usage
+public async Task<IActionResult> Index(int page = 1, string search = """")
+{
+    var products = await _productService.GetPagedAsync(page, 10, search);
+    
+    var viewModel = new ProductListViewModel
+    {
+        Products = _mapper.Map<List<ProductSummaryViewModel>>(products.Items),
+        TotalCount = products.TotalCount,
+        PageNumber = page,
+        PageSize = 10,
+        SearchTerm = search
+    };
+    
+    return View(viewModel);
+}
+```
+
+## Error Handling in MVC
+
+### Global Error Handling
+```csharp
+// Program.cs
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler(""/Home/Error"");
+    app.UseHsts();
+}
+```
+
+### Custom Error Controller
+```csharp
+public class ErrorController : Controller
+{
+    [Route(""Error/{statusCode}"")]
+    public IActionResult HttpStatusCodeHandler(int statusCode)
+    {
+        switch (statusCode)
+        {
+            case 404:
+                ViewBag.ErrorMessage = ""Sorry, the page you requested could not be found."";
+                break;
+            case 500:
+                ViewBag.ErrorMessage = ""Sorry, an internal server error occurred."";
+                break;
+            default:
+                ViewBag.ErrorMessage = ""An error occurred while processing your request."";
+                break;
+        }
+        
+        return View(""Error"");
+    }
+}
+```
+
+### Try-Catch in Actions
+```csharp
+public async Task<IActionResult> Create(Product product)
+{
+    try
+    {
+        if (ModelState.IsValid)
+        {
+            await _productService.CreateAsync(product);
+            TempData[""Success""] = ""Product created successfully!"";
+            return RedirectToAction(nameof(Index));
+        }
+    }
+    catch (ValidationException ex)
+    {
+        ModelState.AddModelError("""", ex.Message);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, ""Error creating product"");
+        ModelState.AddModelError("""", ""An unexpected error occurred."");
+    }
+    
+    return View(product);
+}
+```
+
+## Best Practices
+
+### 1. Separation of Concerns
+- Keep controllers thin - delegate business logic to services
+- Use ViewModels for complex view data
+- Separate data access logic into repositories
+
+### 2. Naming Conventions
+- Controllers: `ProductsController`, `UsersController`
+- Actions: `Index`, `Details`, `Create`, `Edit`, `Delete`
+- Views: Match action names (`Index.cshtml`, `Details.cshtml`)
+
+### 3. Security
+```csharp
+[Authorize] // Require authentication
+public class AdminController : Controller
+{
+    [Authorize(Roles = ""Admin"")] // Require specific role
+    public IActionResult ManageUsers() => View();
+
+    [ValidateAntiForgeryToken] // Prevent CSRF attacks
+    [HttpPost]
+    public IActionResult DeleteUser(int id)
+    {
+        // Implementation
+        return RedirectToAction(nameof(Index));
+    }
+}
+```
+
+### 4. Performance
+```csharp
+public class ProductsController : Controller
+{
+    // Use async/await for I/O operations
+    public async Task<IActionResult> Index()
+    {
+        var products = await _productService.GetAllAsync();
+        return View(products);
+    }
+
+    // Cache frequently accessed data
+    [ResponseCache(Duration = 300)] // Cache for 5 minutes
+    public IActionResult Categories()
+    {
+        var categories = _categoryService.GetAll();
+        return View(categories);
+    }
+}
+```
+
+## Common Patterns
+
+### Repository Pattern
+```csharp
+public interface IProductRepository
+{
+    Task<IEnumerable<Product>> GetAllAsync();
+    Task<Product> GetByIdAsync(int id);
+    Task<Product> CreateAsync(Product product);
+    Task UpdateAsync(Product product);
+    Task DeleteAsync(int id);
+}
+
+public class ProductService
+{
+    private readonly IProductRepository _repository;
+
+    public ProductService(IProductRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task<IEnumerable<Product>> GetAllActiveAsync()
+    {
+        var products = await _repository.GetAllAsync();
+        return products.Where(p => p.IsActive);
+    }
+}
+```
+
+### Unit of Work Pattern
+```csharp
+public interface IUnitOfWork : IDisposable
+{
+    IProductRepository Products { get; }
+    ICategoryRepository Categories { get; }
+    Task<int> SaveChangesAsync();
+}
+
+public class ProductsController : Controller
+{
+    private readonly IUnitOfWork _unitOfWork;
+
+    public ProductsController(IUnitOfWork unitOfWork)
+    {
+        _unitOfWork = unitOfWork;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(Product product)
+    {
+        if (ModelState.IsValid)
+        {
+            await _unitOfWork.Products.CreateAsync(product);
+            await _unitOfWork.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        return View(product);
+    }
+}
+```
+
+## Testing MVC Applications
+
+### Unit Testing Controllers
+```csharp
+[Test]
+public async Task Index_ReturnsViewWithProducts()
+{
+    // Arrange
+    var mockService = new Mock<IProductService>();
+    var products = new List<Product> { new Product { Name = ""Test"" } };
+    mockService.Setup(s => s.GetAllAsync()).ReturnsAsync(products);
+    
+    var controller = new ProductsController(mockService.Object);
+
+    // Act
+    var result = await controller.Index();
+
+    // Assert
+    var viewResult = Assert.IsType<ViewResult>(result);
+    var model = Assert.IsAssignableFrom<IEnumerable<Product>>(viewResult.Model);
+    Assert.Single(model);
+}
+```
+
+### Integration Testing
+```csharp
+[Test]
+public async Task GetProducts_ReturnsSuccessAndCorrectContentType()
+{
+    // Arrange
+    var client = _factory.CreateClient();
+
+    // Act
+    var response = await client.GetAsync(""/Products"");
+
+    // Assert
+    response.EnsureSuccessStatusCode();
+    Assert.Equal(""text/html; charset=utf-8"",
+        response.Content.Headers.ContentType.ToString());
+}
+```
+
+## Key Takeaways
+
+- **MVC separates concerns**: Models handle data, Views handle presentation, Controllers handle user input
+- **Controllers are the traffic directors**: They coordinate between Models and Views
+- **Use dependency injection**: Makes code testable and maintainable
+- **Follow naming conventions**: Keeps code organized and predictable
+- **Validate user input**: Always validate on both client and server side
+- **Handle errors gracefully**: Provide meaningful error messages to users
+- **Keep controllers thin**: Move business logic to services
+- **Use ViewModels**: Shape data specifically for views
+- **Test your code**: Unit test controllers and integration test the full pipeline
+
+MVC is the foundation of ASP.NET Core web applications. Master these concepts and you'll be able to build robust, maintainable web applications!"
+        },
+
+        // Module 2: Dependency Injection
+        new LessonDto
+        {
+            Id = 11,
+            Title = "Dependency Injection in ASP.NET Core",
+            Description = "Master dependency injection - the cornerstone of modern ASP.NET Core applications for building maintainable and testable code.",
+            Content = @"# Dependency Injection in ASP.NET Core
+
+## What is Dependency Injection?
+
+Dependency Injection (DI) is a design pattern that implements Inversion of Control (IoC) for resolving dependencies. Instead of a class creating its own dependencies, they are provided (injected) from the outside. This makes code more modular, testable, and maintainable.
+
+## The Problem Without DI
+
+```csharp
+// Tightly coupled code - BAD
+public class OrderService
+{
+    private readonly EmailService _emailService;
+    private readonly DatabaseContext _dbContext;
+
+    public OrderService()
+    {
+        // Hard-coded dependencies - difficult to test and maintain
+        _emailService = new EmailService();
+        _dbContext = new DatabaseContext(""connectionString"");
+    }
+
+    public async Task ProcessOrderAsync(Order order)
+    {
+        // Save to database
+        await _dbContext.Orders.AddAsync(order);
+        await _dbContext.SaveChangesAsync();
+
+        // Send confirmation email
+        await _emailService.SendOrderConfirmationAsync(order);
+    }
+}
+```
+
+**Problems with this approach:**
+- Hard to unit test (can't mock dependencies)
+- Violates Single Responsibility Principle
+- Difficult to change implementations
+- Creates tight coupling between classes
+
+## The Solution With DI
+
+```csharp
+// Loosely coupled code - GOOD
+public interface IEmailService
+{
+    Task SendOrderConfirmationAsync(Order order);
+}
+
+public interface IOrderRepository
+{
+    Task<Order> CreateAsync(Order order);
+    Task<Order> GetByIdAsync(int id);
+}
+
+public class OrderService
+{
+    private readonly IEmailService _emailService;
+    private readonly IOrderRepository _orderRepository;
+    private readonly ILogger<OrderService> _logger;
+
+    // Dependencies injected through constructor
+    public OrderService(
+        IEmailService emailService,
+        IOrderRepository orderRepository,
+        ILogger<OrderService> logger)
+    {
+        _emailService = emailService;
+        _orderRepository = orderRepository;
+        _logger = logger;
+    }
+
+    public async Task<Order> ProcessOrderAsync(Order order)
+    {
+        try
+        {
+            _logger.LogInformation(""Processing order {OrderId}"", order.Id);
+
+            // Save to database
+            var savedOrder = await _orderRepository.CreateAsync(order);
+
+            // Send confirmation email
+            await _emailService.SendOrderConfirmationAsync(savedOrder);
+
+            _logger.LogInformation(""Order {OrderId} processed successfully"", savedOrder.Id);
+            return savedOrder;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ""Error processing order {OrderId}"", order.Id);
+            throw;
+        }
+    }
+}
+```
+
+## ASP.NET Core Built-in DI Container
+
+ASP.NET Core includes a built-in DI container that manages the lifecycle of your services.
+
+### Service Registration
+
+```csharp
+// Program.cs
+var builder = WebApplication.CreateBuilder(args);
+
+// Register services with different lifetimes
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddSingleton<IEmailService, EmailService>();
+builder.Services.AddTransient<INotificationService, NotificationService>();
+
+// Register DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString(""DefaultConnection"")));
+
+// Register built-in services
+builder.Services.AddControllers();
+builder.Services.AddLogging();
+
+var app = builder.Build();
+```
+
+## Service Lifetimes
+
+### 1. Transient
+A new instance is created every time the service is requested.
+
+```csharp
+builder.Services.AddTransient<ITransientService, TransientService>();
+
+// Usage example - good for lightweight, stateless services
+public interface ITransientService
+{
+    Guid GetInstanceId();
+}
+
+public class TransientService : ITransientService
+{
+    private readonly Guid _instanceId = Guid.NewGuid();
+    
+    public Guid GetInstanceId() => _instanceId;
+}
+```
+
+### 2. Scoped
+One instance per HTTP request (or scope).
+
+```csharp
+builder.Services.AddScoped<IScopedService, ScopedService>();
+
+// Usage example - good for services that maintain state during a request
+public interface IUserContext
+{
+    int UserId { get; set; }
+    string UserName { get; set; }
+}
+
+public class UserContext : IUserContext
+{
+    public int UserId { get; set; }
+    public string UserName { get; set; }
+}
+```
+
+### 3. Singleton
+One instance for the entire application lifetime.
+
+```csharp
+builder.Services.AddSingleton<ISingletonService, SingletonService>();
+
+// Usage example - good for expensive-to-create, stateless services
+public interface ICacheService
+{
+    Task<T> GetAsync<T>(string key);
+    Task SetAsync<T>(string key, T value, TimeSpan expiration);
+}
+
+public class MemoryCacheService : ICacheService
+{
+    private readonly IMemoryCache _cache;
+
+    public MemoryCacheService(IMemoryCache cache)
+    {
+        _cache = cache;
+    }
+
+    public Task<T> GetAsync<T>(string key)
+    {
+        _cache.TryGetValue(key, out T value);
+        return Task.FromResult(value);
+    }
+
+    public Task SetAsync<T>(string key, T value, TimeSpan expiration)
+    {
+        _cache.Set(key, value, expiration);
+        return Task.CompletedTask;
+    }
+}
+```
+
+## Constructor Injection
+
+The most common form of DI in ASP.NET Core.
+
+```csharp
+[ApiController]
+[Route(""api/[controller]"")]
+public class ProductsController : ControllerBase
+{
+    private readonly IProductService _productService;
+    private readonly ILogger<ProductsController> _logger;
+    private readonly IMapper _mapper;
+
+    public ProductsController(
+        IProductService productService,
+        ILogger<ProductsController> logger,
+        IMapper mapper)
+    {
+        _productService = productService ?? throw new ArgumentNullException(nameof(productService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
+    {
+        try
+        {
+            var products = await _productService.GetAllAsync();
+            var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
+            return Ok(productDtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ""Error retrieving products"");
+            return StatusCode(500, ""An error occurred while retrieving products"");
+        }
+    }
+}
+```
+
+## Service Registration Patterns
+
+### 1. Interface and Implementation
+
+```csharp
+// Define interface
+public interface IProductService
+{
+    Task<IEnumerable<Product>> GetAllAsync();
+    Task<Product> GetByIdAsync(int id);
+    Task<Product> CreateAsync(Product product);
+    Task UpdateAsync(Product product);
+    Task DeleteAsync(int id);
+}
+
+// Implement interface
+public class ProductService : IProductService
+{
+    private readonly IProductRepository _repository;
+    private readonly ILogger<ProductService> _logger;
+
+    public ProductService(IProductRepository repository, ILogger<ProductService> logger)
+    {
+        _repository = repository;
+        _logger = logger;
+    }
+
+    public async Task<IEnumerable<Product>> GetAllAsync()
+    {
+        _logger.LogInformation(""Retrieving all products"");
+        return await _repository.GetAllAsync();
+    }
+
+    public async Task<Product> GetByIdAsync(int id)
+    {
+        _logger.LogInformation(""Retrieving product with ID {ProductId}"", id);
+        return await _repository.GetByIdAsync(id);
+    }
+
+    // ... other methods
+}
+
+// Register in DI container
+builder.Services.AddScoped<IProductService, ProductService>();
+```
+
+### 2. Generic Services
+
+```csharp
+// Generic repository interface
+public interface IRepository<T> where T : class
+{
+    Task<IEnumerable<T>> GetAllAsync();
+    Task<T> GetByIdAsync(int id);
+    Task<T> CreateAsync(T entity);
+    Task UpdateAsync(T entity);
+    Task DeleteAsync(int id);
+}
+
+// Generic repository implementation
+public class Repository<T> : IRepository<T> where T : class
+{
+    private readonly DbContext _context;
+    private readonly DbSet<T> _dbSet;
+
+    public Repository(DbContext context)
+    {
+        _context = context;
+        _dbSet = context.Set<T>();
+    }
+
+    public async Task<IEnumerable<T>> GetAllAsync()
+    {
+        return await _dbSet.ToListAsync();
+    }
+
+    // ... other methods
+}
+
+// Register generic service
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+```
+
+### 3. Factory Pattern with DI
+
+```csharp
+// Factory interface
+public interface IServiceFactory
+{
+    IPaymentProcessor CreatePaymentProcessor(PaymentType type);
+}
+
+// Factory implementation
+public class ServiceFactory : IServiceFactory
+{
+    private readonly IServiceProvider _serviceProvider;
+
+    public ServiceFactory(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
+    public IPaymentProcessor CreatePaymentProcessor(PaymentType type)
+    {
+        return type switch
+        {
+            PaymentType.CreditCard => _serviceProvider.GetRequiredService<ICreditCardProcessor>(),
+            PaymentType.PayPal => _serviceProvider.GetRequiredService<IPayPalProcessor>(),
+            PaymentType.BankTransfer => _serviceProvider.GetRequiredService<IBankTransferProcessor>(),
+            _ => throw new ArgumentException($""Unsupported payment type: {type}"")
+        };
+    }
+}
+
+// Register factory and implementations
+builder.Services.AddScoped<IServiceFactory, ServiceFactory>();
+builder.Services.AddScoped<ICreditCardProcessor, CreditCardProcessor>();
+builder.Services.AddScoped<IPayPalProcessor, PayPalProcessor>();
+builder.Services.AddScoped<IBankTransferProcessor, BankTransferProcessor>();
+```
+
+## Configuration Injection
+
+```csharp
+// Configuration class
+public class EmailSettings
+{
+    public string SmtpServer { get; set; } = string.Empty;
+    public int Port { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public bool EnableSsl { get; set; }
+}
+
+// appsettings.json
+{
+  ""EmailSettings"": {
+    ""SmtpServer"": ""smtp.gmail.com"",
+    ""Port"": 587,
+    ""Username"": ""your-email@gmail.com"",
+    ""Password"": ""your-password"",
+    ""EnableSsl"": true
+  }
+}
+
+// Register configuration
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection(""EmailSettings""));
+
+// Use in service
+public class EmailService : IEmailService
+{
+    private readonly EmailSettings _emailSettings;
+    private readonly ILogger<EmailService> _logger;
+
+    public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger)
+    {
+        _emailSettings = emailSettings.Value;
+        _logger = logger;
+    }
+
+    public async Task SendEmailAsync(string to, string subject, string body)
+    {
+        using var client = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.Port);
+        client.EnableSsl = _emailSettings.EnableSsl;
+        client.Credentials = new NetworkCredential(_emailSettings.Username, _emailSettings.Password);
+
+        var message = new MailMessage(_emailSettings.Username, to, subject, body);
+        await client.SendMailAsync(message);
+
+        _logger.LogInformation(""Email sent to {Recipient}"", to);
+    }
+}
+```
+
+## Advanced DI Scenarios
+
+### 1. Conditional Registration
+
+```csharp
+// Register different implementations based on environment
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddScoped<IEmailService, MockEmailService>();
+}
+else
+{
+    builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+}
+
+// Register based on configuration
+var useRedisCache = builder.Configuration.GetValue<bool>(""UseRedisCache"");
+if (useRedisCache)
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = builder.Configuration.GetConnectionString(""Redis"");
+    });
+    builder.Services.AddScoped<ICacheService, RedisCacheService>();
+}
+else
+{
+    builder.Services.AddMemoryCache();
+    builder.Services.AddScoped<ICacheService, MemoryCacheService>();
+}
+```
+
+### 2. Decorator Pattern
+
+```csharp
+// Base service
+public interface IOrderService
+{
+    Task<Order> ProcessOrderAsync(Order order);
+}
+
+public class OrderService : IOrderService
+{
+    public async Task<Order> ProcessOrderAsync(Order order)
+    {
+        // Core business logic
+        await Task.Delay(100); // Simulate processing
+        return order;
+    }
+}
+
+// Decorator for logging
+public class LoggingOrderServiceDecorator : IOrderService
+{
+    private readonly IOrderService _orderService;
+    private readonly ILogger<LoggingOrderServiceDecorator> _logger;
+
+    public LoggingOrderServiceDecorator(IOrderService orderService, ILogger<LoggingOrderServiceDecorator> logger)
+    {
+        _orderService = orderService;
+        _logger = logger;
+    }
+
+    public async Task<Order> ProcessOrderAsync(Order order)
+    {
+        _logger.LogInformation(""Processing order {OrderId}"", order.Id);
+        var result = await _orderService.ProcessOrderAsync(order);
+        _logger.LogInformation(""Order {OrderId} processed successfully"", result.Id);
+        return result;
+    }
+}
+
+// Decorator for caching
+public class CachingOrderServiceDecorator : IOrderService
+{
+    private readonly IOrderService _orderService;
+    private readonly ICacheService _cacheService;
+
+    public CachingOrderServiceDecorator(IOrderService orderService, ICacheService cacheService)
+    {
+        _orderService = orderService;
+        _cacheService = cacheService;
+    }
+
+    public async Task<Order> ProcessOrderAsync(Order order)
+    {
+        var cacheKey = $""order_{order.Id}"";
+        var cachedOrder = await _cacheService.GetAsync<Order>(cacheKey);
+        
+        if (cachedOrder != null)
+        {
+            return cachedOrder;
+        }
+
+        var result = await _orderService.ProcessOrderAsync(order);
+        await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromMinutes(10));
+        return result;
+    }
+}
+
+// Registration with decorators
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<IOrderService>(provider =>
+{
+    var orderService = provider.GetRequiredService<OrderService>();
+    var logger = provider.GetRequiredService<ILogger<LoggingOrderServiceDecorator>>();
+    var cacheService = provider.GetRequiredService<ICacheService>();
+
+    // Wrap with decorators
+    var loggingDecorator = new LoggingOrderServiceDecorator(orderService, logger);
+    var cachingDecorator = new CachingOrderServiceDecorator(loggingDecorator, cacheService);
+    
+    return cachingDecorator;
+});
+```
+
+### 3. Named Services
+
+```csharp
+// Multiple implementations of the same interface
+public interface INotificationService
+{
+    Task SendNotificationAsync(string message);
+}
+
+public class EmailNotificationService : INotificationService
+{
+    public async Task SendNotificationAsync(string message)
+    {
+        // Send email notification
+        await Task.Delay(100);
+    }
+}
+
+public class SmsNotificationService : INotificationService
+{
+    public async Task SendNotificationAsync(string message)
+    {
+        // Send SMS notification
+        await Task.Delay(100);
+    }
+}
+
+// Factory to resolve named services
+public interface INotificationServiceFactory
+{
+    INotificationService GetService(string serviceType);
+}
+
+public class NotificationServiceFactory : INotificationServiceFactory
+{
+    private readonly IServiceProvider _serviceProvider;
+
+    public NotificationServiceFactory(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
+    public INotificationService GetService(string serviceType)
+    {
+        return serviceType.ToLower() switch
+        {
+            ""email"" => _serviceProvider.GetRequiredService<EmailNotificationService>(),
+            ""sms"" => _serviceProvider.GetRequiredService<SmsNotificationService>(),
+            _ => throw new ArgumentException($""Unknown service type: {serviceType}"")
+        };
+    }
+}
+
+// Registration
+builder.Services.AddScoped<EmailNotificationService>();
+builder.Services.AddScoped<SmsNotificationService>();
+builder.Services.AddScoped<INotificationServiceFactory, NotificationServiceFactory>();
+```
+
+## Testing with DI
+
+### 1. Unit Testing
+
+```csharp
+[Test]
+public async Task ProcessOrderAsync_ValidOrder_ReturnsProcessedOrder()
+{
+    // Arrange
+    var mockEmailService = new Mock<IEmailService>();
+    var mockRepository = new Mock<IOrderRepository>();
+    var mockLogger = new Mock<ILogger<OrderService>>();
+
+    var order = new Order { Id = 1, CustomerName = ""John Doe"" };
+    mockRepository.Setup(r => r.CreateAsync(It.IsAny<Order>()))
+              .ReturnsAsync(order);
+
+    var orderService = new OrderService(
+        mockEmailService.Object,
+        mockRepository.Object,
+        mockLogger.Object);
+
+    // Act
+    var result = await orderService.ProcessOrderAsync(order);
+
+    // Assert
+    Assert.That(result, Is.Not.Null);
+    Assert.That(result.Id, Is.EqualTo(1));
+    mockRepository.Verify(r => r.CreateAsync(order), Times.Once);
+    mockEmailService.Verify(e => e.SendOrderConfirmationAsync(order), Times.Once);
+}
+```
+
+### 2. Integration Testing
+
+```csharp
+public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
+{
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.ConfigureServices(services =>
+        {
+            // Remove the app's ApplicationDbContext registration
+            var descriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+            if (descriptor != null)
+            {
+                services.Remove(descriptor);
+            }
+
+            // Add ApplicationDbContext using an in-memory database for testing
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseInMemoryDatabase(""InMemoryDbForTesting"");
+            });
+
+            // Replace email service with mock for testing
+            services.AddScoped<IEmailService, MockEmailService>();
+        });
+    }
+}
+
+[Test]
+public async Task GetProducts_ReturnsSuccessAndCorrectContentType()
+{
+    // Arrange
+    var factory = new CustomWebApplicationFactory<Program>();
+    var client = factory.CreateClient();
+
+    // Act
+    var response = await client.GetAsync(""/api/products"");
+
+    // Assert
+    response.EnsureSuccessStatusCode();
+    Assert.That(response.Content.Headers.ContentType?.ToString(),
+                Is.EqualTo(""application/json; charset=utf-8""));
+}
+```
+
+## Best Practices
+
+### 1. Interface Segregation
+```csharp
+// Bad - Fat interface
+public interface IUserService
+{
+    Task<User> GetUserAsync(int id);
+    Task CreateUserAsync(User user);
+    Task SendEmailAsync(string email, string subject, string body);
+    Task LogUserActivityAsync(int userId, string activity);
+    Task GenerateReportAsync();
+}
+
+// Good - Segregated interfaces
+public interface IUserRepository
+{
+    Task<User> GetUserAsync(int id);
+    Task CreateUserAsync(User user);
+}
+
+public interface IEmailService
+{
+    Task SendEmailAsync(string email, string subject, string body);
+}
+
+public interface IUserActivityLogger
+{
+    Task LogUserActivityAsync(int userId, string activity);
+}
+
+public interface IReportGenerator
+{
+    Task GenerateReportAsync();
+}
+```
+
+### 2. Avoid Service Locator Anti-pattern
+```csharp
+// Bad - Service Locator (anti-pattern)
+public class OrderService
+{
+    private readonly IServiceProvider _serviceProvider;
+
+    public OrderService(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
+    public async Task ProcessOrderAsync(Order order)
+    {
+        // Don't do this - it hides dependencies
+        var emailService = _serviceProvider.GetRequiredService<IEmailService>();
+        var repository = _serviceProvider.GetRequiredService<IOrderRepository>();
+        
+        // ... use services
+    }
+}
+
+// Good - Explicit dependencies
+public class OrderService
+{
+    private readonly IEmailService _emailService;
+    private readonly IOrderRepository _repository;
+
+    public OrderService(IEmailService emailService, IOrderRepository repository)
+    {
+        _emailService = emailService;
+        _repository = repository;
+    }
+
+    public async Task ProcessOrderAsync(Order order)
+    {
+        // Dependencies are clear and testable
+        // ... use services
+    }
+}
+```
+
+### 3. Validate Dependencies
+```csharp
+public class OrderService
+{
+    private readonly IEmailService _emailService;
+    private readonly IOrderRepository _repository;
+
+    public OrderService(IEmailService emailService, IOrderRepository repository)
+    {
+        _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+    }
+}
+```
+
+### 4. Use Appropriate Lifetimes
+```csharp
+// Singleton - Expensive to create, stateless
+builder.Services.AddSingleton<IExpensiveService, ExpensiveService>();
+
+// Scoped - Per request, can maintain state during request
+builder.Services.AddScoped<IUserContext, UserContext>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
+// Transient - Lightweight, stateless
+builder.Services.AddTransient<IValidator<Order>, OrderValidator>();
+```
+
+## Common Pitfalls
+
+### 1. Circular Dependencies
+```csharp
+// Bad - Circular dependency
+public class ServiceA
+{
+    public ServiceA(ServiceB serviceB) { }
+}
+
+public class ServiceB
+{
+    public ServiceB(ServiceA serviceA) { } // Circular!
+}
+
+// Solution - Introduce an interface or refactor
+public interface IServiceA
+{
+    void DoSomething();
+}
+
+public class ServiceA : IServiceA
+{
+    public ServiceA(IServiceB serviceB) { }
+    public void DoSomething() { }
+}
+
+public interface IServiceB
+{
+    void DoSomethingElse();
+}
+
+public class ServiceB : IServiceB
+{
+    public ServiceB(IServiceA serviceA) { }
+    public void DoSomethingElse() { }
+}
+```
+
+### 2. Captive Dependencies
+```csharp
+// Bad - Singleton capturing scoped service
+builder.Services.AddSingleton<ISingletonService, SingletonService>(); // Lives for app lifetime
+builder.Services.AddScoped<IScopedService, ScopedService>(); // Lives for request
+
+public class SingletonService : ISingletonService
+{
+    private readonly IScopedService _scopedService; // Problem!
+
+    public SingletonService(IScopedService scopedService)
+    {
+        _scopedService = scopedService; // Scoped service captured by singleton
+    }
+}
+
+// Solution - Use factory or IServiceProvider
+public class SingletonService : ISingletonService
+{
+    private readonly IServiceProvider _serviceProvider;
+
+    public SingletonService(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
+    public void DoWork()
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var scopedService = scope.ServiceProvider.GetRequiredService<IScopedService>();
+        // Use scoped service
+    }
+}
+```
+
+## Key Takeaways
+
+- **DI promotes loose coupling**: Classes depend on abstractions, not concrete implementations
+- **Choose appropriate lifetimes**: Singleton for expensive stateless services, Scoped for per-request state, Transient for lightweight services
+- **Use constructor injection**: Makes dependencies explicit and testable
+- **Register interfaces, not implementations**: Enables easy swapping of implementations
+- **Validate dependencies**: Check for null in constructors
+- **Avoid service locator pattern**: Inject specific dependencies instead of IServiceProvider
+- **Watch for circular dependencies**: Refactor or use interfaces to break cycles
+- **Be careful with captive dependencies**: Don't inject shorter-lived services into longer-lived ones
+- **Use configuration objects**: Inject IOptions<T> for configuration settings
+- **Test with mocks**: DI makes unit testing much easier
+
+Dependency Injection is fundamental to building maintainable, testable ASP.NET Core applications. Master these concepts and your code will be more flexible, easier to test, and simpler to maintain!"
+        }
+    };
 }

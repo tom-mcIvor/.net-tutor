@@ -8,3 +8,11 @@ export async function getLessons(): Promise<Lesson[]> {
 export async function getLesson(id: number): Promise<Lesson> {
   return http<Lesson>(`/lessons/${id}`);
 }
+
+export async function getAspNetCoreLessons(): Promise<Lesson[]> {
+  return http<Lesson[]>("/lessons/aspnetcore");
+}
+
+export async function getAspNetCoreLesson(id: number): Promise<Lesson> {
+  return http<Lesson>(`/lessons/aspnetcore/${id}`);
+}

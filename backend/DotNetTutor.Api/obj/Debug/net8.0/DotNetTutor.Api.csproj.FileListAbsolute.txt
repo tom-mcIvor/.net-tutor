@@ -175,3 +175,6 @@
 /home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/obj/Debug/net8.0/DotNetTutor.Api.pdb
 /home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/obj/Debug/net8.0/DotNetTutor.Api.genruntimeconfig.cache
 /home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/obj/Debug/net8.0/ref/DotNetTutor.Api.dll
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/AspNetCore/11-dependency-injection.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/CSharpBasics/01-welcome-to-csharp.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/CSharpBasics/02-variables-and-data-types.json
