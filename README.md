@@ -62,6 +62,16 @@ It delivers interactive, structured content inspired by official .NET documentat
    - Lesson navigation and progress tracking.
    - JSON-based lesson metadata and markdown content.
 
+- [ ] **Expanded Course Content**
+   - Add more course cards for comprehensive coverage of each topic.
+   - Flesh out learning tabs with structured, detailed content.
+   - Create complete learning paths for each major .NET area.
+
+- [ ] **Interactive Quiz System**
+   - Add quizzes to reinforce learning after each section.
+   - Multiple choice questions with instant feedback.
+   - Progress tracking for quiz completion and scores.
+
 ---
 
 ## 🌟 Stretch Goals
