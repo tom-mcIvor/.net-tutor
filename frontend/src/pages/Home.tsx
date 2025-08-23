@@ -19,6 +19,7 @@ const TABS = [
   'Entity Framework Core',
   '.NET Libraries & Tools',
   'Advanced Topics',
+  'From node.js to .NET',
   'Profile'
 ];
 

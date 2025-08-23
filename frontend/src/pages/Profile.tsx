@@ -12,7 +12,8 @@ const TABS = [
   'ASP.NET Core Overview',
   'Entity Framework Core',
   '.NET Libraries & Tools',
-  'Advanced Topics'
+  'Advanced Topics',
+  'from node.js to .NET'
 ];
 
 export default function Profile() {

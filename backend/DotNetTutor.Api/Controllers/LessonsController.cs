@@ -59,6 +59,28 @@ public class LessonsController : ControllerBase
         return Ok(topics);
     }
 
+    [HttpGet("efcore")]
+    public IActionResult GetEFCoreLessons() => Ok(LessonContentService.EFCoreLessons);
+
+    [HttpGet("efcore/{id:int}")]
+    public IActionResult GetEFCoreLessonById(int id)
+    {
+        var lesson = Array.Find(LessonContentService.EFCoreLessons, l => l.Id == id);
+        return lesson is null ? NotFound() : Ok(lesson);
+    }
+
+    [HttpGet("efcore/count")]
+    public IActionResult GetEFCoreLessonCount() => Ok(new { count = LessonContentService.EFCoreLessons.Length });
+
+    [HttpGet("efcore/topics")]
+    public IActionResult GetEFCoreTopics()
+    {
+        var topics = LessonContentService.EFCoreLessons
+            .Select(l => new { l.Id, l.Title, l.Description })
+            .ToArray();
+        return Ok(topics);
+    }
+
     [HttpGet("database")]
     public async Task<IActionResult> GetFromDatabase()
     {
