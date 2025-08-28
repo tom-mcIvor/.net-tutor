@@ -143,14 +143,15 @@ describe('Lessons API', () => {
     })
 
     it('makes concurrent requests correctly', async () => {
-      const lesson1Promise = getLesson(1)
-      const lesson2Promise = getLesson(2)
-      const lessonsPromise = getLessons()
-
+      // Set up mocks before creating promises
       mockHttp
         .mockResolvedValueOnce({ ...mockLesson, id: 1 })
         .mockResolvedValueOnce({ ...mockLesson, id: 2 })
         .mockResolvedValueOnce(mockLessons)
+
+      const lesson1Promise = getLesson(1)
+      const lesson2Promise = getLesson(2)
+      const lessonsPromise = getLessons()
 
       const results = await Promise.all([lesson1Promise, lesson2Promise, lessonsPromise])
 
@@ -161,12 +162,13 @@ describe('Lessons API', () => {
     })
 
     it('handles mixed success and failure responses', async () => {
-      const successPromise = getLesson(1)
-      const failurePromise = getLesson(999)
-
+      // Set up mocks before creating promises
       mockHttp
         .mockResolvedValueOnce(mockLesson)
         .mockRejectedValueOnce(new Error('Not found'))
+
+      const successPromise = getLesson(1)
+      const failurePromise = getLesson(999)
 
       await expect(successPromise).resolves.toEqual(mockLesson)
       await expect(failurePromise).rejects.toThrow('Not found')

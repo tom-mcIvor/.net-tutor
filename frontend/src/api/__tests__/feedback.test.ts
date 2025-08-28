@@ -169,14 +169,15 @@ describe('Feedback API', () => {
 
   describe('API Integration Scenarios', () => {
     it('handles concurrent feedback operations', async () => {
-      const submitPromise = submitFeedback(mockCreateFeedbackDto)
-      const getPromise = getFeedback(1)
-      const getAllPromise = getAllFeedback()
-
+      // Set up mocks before creating promises
       mockHttp
         .mockResolvedValueOnce(mockFeedback) // for submit
         .mockResolvedValueOnce(mockFeedback) // for get
         .mockResolvedValueOnce(mockFeedbackList) // for getAll
+
+      const submitPromise = submitFeedback(mockCreateFeedbackDto)
+      const getPromise = getFeedback(1)
+      const getAllPromise = getAllFeedback()
 
       const results = await Promise.all([submitPromise, getPromise, getAllPromise])
 

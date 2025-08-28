@@ -34,7 +34,7 @@ describe('Login', () => {
   it('renders login form correctly', () => {
     render(<Login {...mockProps} />)
     
-    expect(screen.getByText('Sign In')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Sign In' })).toBeInTheDocument()
     expect(screen.getByLabelText('Email')).toBeInTheDocument()
     expect(screen.getByLabelText('Password')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument()
@@ -72,7 +72,7 @@ describe('Login', () => {
   it('calls onClose when clicking on overlay', () => {
     render(<Login {...mockProps} />)
     
-    const overlay = screen.getByText('Sign In').closest('.auth-modal')
+    const overlay = screen.getByRole('heading', { name: 'Sign In' }).closest('.auth-modal')
     expect(overlay).toBeInTheDocument()
     
     fireEvent.click(overlay!)
@@ -82,7 +82,7 @@ describe('Login', () => {
   it('does not close when clicking on modal content', () => {
     render(<Login {...mockProps} />)
     
-    const modalContent = screen.getByText('Sign In').closest('.auth-modal-content')
+    const modalContent = screen.getByRole('heading', { name: 'Sign In' }).closest('.auth-modal-content')
     expect(modalContent).toBeInTheDocument()
     
     fireEvent.click(modalContent!)
