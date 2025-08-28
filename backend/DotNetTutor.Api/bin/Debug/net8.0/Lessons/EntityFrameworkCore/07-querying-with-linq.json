@@ -1,0 +1,5 @@
+{
+  "id": 7,
+  "title": "Querying with LINQ",
+  "description": "Use LINQ to query your database efficiently and learn about deferred execution and query optimization."
+}

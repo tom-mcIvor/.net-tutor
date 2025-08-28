@@ -1,0 +1,5 @@
+{
+  "id": 8,
+  "title": "Advanced Configurations",
+  "description": "Configure entity properties, indexes, constraints, and custom conventions using Fluent API."
+}

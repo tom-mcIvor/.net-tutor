@@ -179,3 +179,11 @@
 /home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/CSharpBasics/01-welcome-to-csharp.json
 /home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/CSharpBasics/02-variables-and-data-types.json
 /home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/AspNetCore/01-welcome-to-aspnet-core.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/01-introduction-to-entity-framework-core.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/02-setting-up-ef-core.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/03-models-and-entities.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/04-migrations-and-database-creation.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/05-crud-operations.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/06-relationships-and-navigation-properties.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/07-querying-with-linq.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/08-advanced-configurations.json

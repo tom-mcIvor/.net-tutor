@@ -1,0 +1,5 @@
+{
+  "id": 1,
+  "title": "Introduction to Entity Framework Core",
+  "description": "Learn what EF Core is, why it's important, and how it simplifies database operations in .NET applications."
+}
