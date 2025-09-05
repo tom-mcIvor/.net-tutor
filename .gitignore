@@ -1,0 +1,33 @@
+# Deployment and secrets
+deployment/
+*.pem
+*.key
+**/appsettings.Production.json
+.env
+.env.*
+
+# AWS credentials
+.aws/
+aws-credentials.txt
+**/credentials
+
+# Build artifacts
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
