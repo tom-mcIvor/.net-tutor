@@ -64,15 +64,24 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS for Vite dev server
-const string ViteCors = "ViteCors";
+// CORS configuration
+const string CorsPolicy = "CorsPolicy";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(ViteCors, policy =>
+    options.AddPolicy(CorsPolicy, policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
+        else
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
     });
 });
 
@@ -91,7 +100,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(ViteCors);
+app.UseCors(CorsPolicy);
 
 app.UseHttpsRedirection();
 
@@ -99,6 +108,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 app.Run();
 
