@@ -1,0 +1,11 @@
+{
+    "Changes": [{
+        "Action": "UPSERT",
+        "ResourceRecordSet": {
+            "Name": "dotnettutor.click",
+            "Type": "A",
+            "TTL": 300,
+            "ResourceRecords": [{"Value": "3.212.142.135"}]
+        }
+    }]
+}
