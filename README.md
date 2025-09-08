@@ -128,3 +128,38 @@ It delivers interactive, structured content inspired by official .NET documentat
 ---
 
 ## 📂 Repository Structure
+
+```
+.
+├── backend/                    # .NET 8 Web API
+│   ├── DotNetTutor.Api/       # Main API project
+│   │   ├── Controllers/       # API controllers
+│   │   ├── Data/             # Database context & configuration
+│   │   ├── Lessons/          # Lesson content & metadata
+│   │   ├── Models/           # Domain models & DTOs
+│   │   ├── Services/         # Business logic services
+│   │   └── Migrations/       # Entity Framework migrations
+│   └── DotNetTutor.Tests/    # Unit & integration tests
+│
+├── frontend/                  # React + TypeScript
+│   ├── src/
+│   │   ├── components/       # Reusable UI components
+│   │   ├── pages/           # Route-specific page components
+│   │   ├── contexts/        # React context providers
+│   │   ├── api/            # API client & service layer
+│   │   └── types/          # TypeScript type definitions
+│   ├── public/             # Static assets
+│   └── dist/              # Production build output
+│
+├── deployment/               # AWS deployment scripts
+│   ├── deploy.sh            # Main deployment automation
+│   ├── cloudformation-template.yaml  # Infrastructure as code
+│   └── NEW_ACCOUNT_DEPLOYMENT.md    # Deployment documentation
+│
+├── nginx/                   # Reverse proxy configuration
+│   └── nginx.conf          # Production nginx config
+│
+├── .github/workflows/       # CI/CD pipeline
+├── docker-compose.yml       # Local development setup
+└── dot-net-tutor.sln       # .NET solution file
+```
