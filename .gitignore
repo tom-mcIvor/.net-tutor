@@ -31,3 +31,7 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# DNS configuration files (contain IP addresses)
+dns-record.json
+update-dns-record.json
