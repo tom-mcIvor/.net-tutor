@@ -76,7 +76,7 @@ It delivers interactive, structured content inspired by official .NET documentat
    - Production deployment on AWS EC2 with Docker containers
    - CloudFormation infrastructure as code with VPC, security groups, and monitoring
    - Automated deployment scripts with health checks and rollback capabilities
-   - Live at: http://3.212.142.135
+   - Live at: [Domain configured separately]
 
 ---
 

@@ -17,6 +17,8 @@ aws-credentials.txt
 **/node_modules/
 **/dist/
 **/build/
+*.deps.json
+**/MvcTestingAppManifest.json
 
 # IDE
 .vscode/
