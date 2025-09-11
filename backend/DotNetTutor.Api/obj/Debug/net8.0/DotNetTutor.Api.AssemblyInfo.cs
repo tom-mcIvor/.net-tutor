@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DotNetTutor.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e88bb3411cfddf5b48a97214061b272243e2790e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0523df2c0d3ba83d8f69e1320373fb6a88796551")]
 [assembly: System.Reflection.AssemblyProductAttribute("DotNetTutor.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DotNetTutor.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

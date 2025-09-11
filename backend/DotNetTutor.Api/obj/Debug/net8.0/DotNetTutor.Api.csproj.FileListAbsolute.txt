@@ -187,3 +187,4 @@
 /home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/06-relationships-and-navigation-properties.json
 /home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/07-querying-with-linq.json
 /home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/Lessons/EntityFrameworkCore/08-advanced-configurations.json
+/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/bin/Debug/net8.0/appsettings.Production.json
