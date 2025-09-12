@@ -38,3 +38,4 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Run the application
 ENTRYPOINT ["dotnet", "DotNetTutor.Api.dll"]
+

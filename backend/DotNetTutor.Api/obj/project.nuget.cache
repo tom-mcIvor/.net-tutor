@@ -1,13 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "JDhbQdMGW5Q=",
+  "dgSpecHash": "13Js4DBts6s=",
   "success": true,
   "projectFilePath": "/home/thomas/projects/dot-net-tutor/backend/DotNetTutor.Api/DotNetTutor.Api.csproj",
   "expectedPackageFiles": [
+    "/home/thomas/.nuget/packages/auth0.aspnetcore.authentication/1.4.1/auth0.aspnetcore.authentication.1.4.1.nupkg.sha512",
     "/home/thomas/.nuget/packages/azure.core/1.38.0/azure.core.1.38.0.nupkg.sha512",
     "/home/thomas/.nuget/packages/azure.identity/1.11.4/azure.identity.1.11.4.nupkg.sha512",
     "/home/thomas/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/thomas/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/8.0.17/microsoft.aspnetcore.authentication.jwtbearer.8.0.17.nupkg.sha512",
+    "/home/thomas/.nuget/packages/microsoft.aspnetcore.authentication.openidconnect/8.0.1/microsoft.aspnetcore.authentication.openidconnect.8.0.1.nupkg.sha512",
     "/home/thomas/.nuget/packages/microsoft.aspnetcore.cors/2.3.0/microsoft.aspnetcore.cors.2.3.0.nupkg.sha512",
     "/home/thomas/.nuget/packages/microsoft.aspnetcore.cryptography.internal/8.0.17/microsoft.aspnetcore.cryptography.internal.8.0.17.nupkg.sha512",
     "/home/thomas/.nuget/packages/microsoft.aspnetcore.cryptography.keyderivation/8.0.17/microsoft.aspnetcore.cryptography.keyderivation.8.0.17.nupkg.sha512",
