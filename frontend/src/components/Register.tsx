@@ -1,48 +1,53 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 
 interface RegisterProps {
-  onSwitchToLogin: () => void;
-  onClose: () => void;
+  onSwitchToLogin: () => void
+  onClose: () => void
 }
 
-export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onClose }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [error, setError] = useState('');
-  const { register, isLoading } = useAuth();
+export const Register: React.FC<RegisterProps> = ({
+  onSwitchToLogin,
+  onClose,
+}) => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [error, setError] = useState('')
+  const { register, isLoading } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault()
+    setError('')
 
     try {
-      await register(email, password, firstName, lastName);
-      onClose();
+      await register(email, password, firstName, lastName)
+      onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setError(err instanceof Error ? err.message : 'Registration failed')
     }
-  };
+  }
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
   return (
     <div className="auth-modal" onClick={handleOverlayClick}>
       <div className="auth-modal-content">
         <div className="auth-header">
           <h2>Sign Up</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <button className="close-btn" onClick={onClose}>
+            ✕
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="error-message">{error}</div>}
-          
+
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="firstName">First Name</label>
@@ -93,7 +98,11 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onClose }) 
             <small>Password must be at least 6 characters long</small>
           </div>
 
-          <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+          <button
+            type="submit"
+            className="auth-submit-btn"
+            disabled={isLoading}
+          >
             {isLoading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
@@ -101,12 +110,16 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onClose }) 
         <div className="auth-switch">
           <p>
             Already have an account?{' '}
-            <button type="button" onClick={onSwitchToLogin} className="link-btn">
+            <button
+              type="button"
+              onClick={onSwitchToLogin}
+              className="link-btn"
+            >
               Sign in
             </button>
           </p>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
