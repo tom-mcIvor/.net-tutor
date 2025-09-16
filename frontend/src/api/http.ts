@@ -37,7 +37,7 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const method = init?.method || "GET";
 
   // Console instrumentation for visibility
-  console.log("[HTTP] ->", method, url, { init });
+  console.log("[HTTP] ->", method, url, init ? { ...init } : undefined);
 
   try {
     const res = await fetch(url, {

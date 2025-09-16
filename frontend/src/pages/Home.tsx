@@ -7,6 +7,7 @@ import { useProgress } from "../contexts/ProgressContext";
 import { useAuth } from "../contexts/AuthContext";
 import { Login } from "../components/Login";
 import { Register } from "../components/Register";
+import { GoogleCallback } from "../components/GoogleCallback";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import Profile from "./Profile";
@@ -35,8 +36,9 @@ export default function Home() {
   const [searchInput, setSearchInput] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [showGoogleCallback, setShowGoogleCallback] = useState(false);
   const { markTopicComplete, isTopicComplete, addTimeSpent } = useProgress();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
 
   useEffect(() => {
     let isMounted = true;
@@ -98,6 +100,40 @@ export default function Home() {
       }
     };
   }, [activeTab, user, addTimeSpent]);
+
+  // Handle Google OAuth callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const code = urlParams.get('code')
+
+    console.log('Home: Checking OAuth callback', {
+      code,
+      user,
+      isLoading,
+      showGoogleCallback,
+    })
+
+    if (code && !user) {
+      console.log('Home: Setting showGoogleCallback to true')
+      setShowGoogleCallback(true)
+    } else if (user && showGoogleCallback) {
+      console.log('Home: User authenticated, hiding callback')
+      setShowGoogleCallback(false)
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [user, isLoading, showGoogleCallback])
+
+  const handleGoogleSuccess = () => {
+    setShowGoogleCallback(false)
+    window.history.replaceState({}, document.title, window.location.pathname)
+  }
+
+  const handleGoogleError = (error: string) => {
+    setShowGoogleCallback(false)
+    console.error('Google OAuth error:', error)
+    window.history.replaceState({}, document.title, window.location.pathname)
+    alert('Google sign-in failed: ' + error)
+  }
 
 
   const handleMarkTopicComplete = () => {
@@ -1038,6 +1074,16 @@ export default function Home() {
       </section>
     );
   };
+
+  // Show Google callback if processing OAuth
+  if (showGoogleCallback) {
+    return (
+      <GoogleCallback
+        onSuccess={handleGoogleSuccess}
+        onError={handleGoogleError}
+      />
+    )
+  }
 
   return (
     <div className="layout">

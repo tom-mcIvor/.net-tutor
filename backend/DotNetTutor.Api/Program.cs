@@ -1,61 +1,70 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Amazon.CognitoIdentityProvider;
 using DotNetTutor.Api.Data;
-using DotNetTutor.Api.Models;
 using DotNetTutor.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database
+// Database (keep for lessons, feedback, etc.)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity
-builder.Services.AddIdentity<User, IdentityRole>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireLowercase = false;
-    options.User.RequireUniqueEmail = true;
-})
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
+// AWS Cognito Configuration
+builder.Services.AddAWSService<IAmazonCognitoIdentityProvider>();
+builder.Services.AddScoped<CognitoService>();
+builder.Services.AddScoped<JwtService>();
 
-// JWT Authentication
+// JWT Authentication with Cognito and custom JWT for Google OAuth
+var awsRegion = builder.Configuration["AWS:Region"];
+var userPoolId = builder.Configuration["AWS:Cognito:UserPoolId"];
+var clientId = builder.Configuration["AWS:Cognito:ClientId"];
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"] ?? "your-super-secret-key-that-is-at-least-32-characters-long";
-var key = Encoding.ASCII.GetBytes(secretKey);
+var jwtKey = System.Text.Encoding.ASCII.GetBytes(jwtSettings["SecretKey"] ?? "your-super-secret-key-that-is-at-least-32-characters-long-for-google-oauth");
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer("Cognito", options =>
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = jwtSettings["Issuer"] ?? "DotNetTutor",
-        ValidateAudience = true,
-        ValidAudience = jwtSettings["Audience"] ?? "DotNetTutorUsers",
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
-    };
+        options.Authority = $"https://cognito-idp.{awsRegion}.amazonaws.com/{userPoolId}";
+        options.Audience = clientId;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    })
+    .AddJwtBearer("Custom", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(jwtKey),
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwtSettings["Audience"],
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+// Configure the default authentication scheme to try both
+builder.Services.AddAuthorization(options =>
+{
+    options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes("Cognito", "Custom")
+        .RequireAuthenticatedUser()
+        .Build();
 });
 
-// Services
-builder.Services.AddScoped<JwtService>();
+// Services (remove JwtService as we're using Cognito tokens)
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

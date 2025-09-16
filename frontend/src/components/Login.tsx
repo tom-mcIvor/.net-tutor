@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { EmailVerification } from './EmailVerification'
 
 interface LoginProps {
   onSwitchToRegister: () => void
@@ -13,7 +14,14 @@ export const Login: React.FC<LoginProps> = ({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const { login, isLoading } = useAuth()
+  const [showVerification, setShowVerification] = useState(false)
+  const {
+    login,
+    loginWithGoogle,
+    isLoading,
+    requiresVerification,
+    verificationEmail,
+  } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,14 +31,47 @@ export const Login: React.FC<LoginProps> = ({
       await login(email, password)
       onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
+      const errorMessage = err instanceof Error ? err.message : 'Login failed'
+      setError(errorMessage)
+
+      // If verification is required, show the verification component
+      if (requiresVerification && verificationEmail) {
+        setShowVerification(true)
+      }
     }
   }
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
+  const handleVerificationComplete = async () => {
+    setShowVerification(false)
+    // Try to login again after verification
+    try {
+      await login(email, password)
       onClose()
+    } catch {
+      setError('Login failed after verification. Please try again.')
     }
+  }
+
+  const handleBackToLogin = () => {
+    setShowVerification(false)
+    setError('')
+  }
+
+  const handleOverlayClick = () => {
+    // Removed click-outside-to-close behavior
+    // Modal can only be closed via the X button
+  }
+
+  // Show email verification component if needed
+  if (showVerification && verificationEmail) {
+    return (
+      <EmailVerification
+        email={verificationEmail}
+        onVerificationComplete={handleVerificationComplete}
+        onClose={onClose}
+        onBackToLogin={handleBackToLogin}
+      />
+    )
   }
 
   return (
@@ -87,9 +128,14 @@ export const Login: React.FC<LoginProps> = ({
           <button
             type="button"
             className="google-signin-btn"
-            onClick={() => {
-              // TODO: Implement Google OAuth
-              console.log('Google sign-in clicked')
+            onClick={async () => {
+              try {
+                await loginWithGoogle()
+              } catch (err) {
+                setError(
+                  err instanceof Error ? err.message : 'Google sign-in failed'
+                )
+              }
             }}
             disabled={isLoading}
           >

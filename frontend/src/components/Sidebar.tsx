@@ -17,7 +17,7 @@ export default function Sidebar({
   activeTab,
   setActiveTab,
   sidebarOpen,
-  setSidebarOpen
+  setSidebarOpen,
 }: SidebarProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [showLogin, setShowLogin] = useState(false)
@@ -25,7 +25,7 @@ export default function Sidebar({
   const [showUserMenu, setShowUserMenu] = useState(false)
   const { user, logout } = useAuth()
 
-  const filteredTabs = tabs.filter(tab =>
+  const filteredTabs = tabs.filter((tab) =>
     tab.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -60,13 +60,6 @@ export default function Sidebar({
           <span className="brand">.NET Tutor</span>
           <div className="header-controls">
             <ThemeToggle />
-            <button
-              className="close-btn"
-              aria-label="Close sidebar"
-              onClick={() => setSidebarOpen(false)}
-            >
-              ✕
-            </button>
           </div>
         </div>
 
@@ -110,15 +103,18 @@ export default function Sidebar({
               </button>
               {showUserMenu && (
                 <div className="user-menu-dropdown">
-                  <div className="user-menu-item" style={{ opacity: 0.7, cursor: 'default' }}>
+                  <div
+                    className="user-menu-item"
+                    style={{ opacity: 0.7, cursor: 'default' }}
+                  >
                     {user.email}
                   </div>
                   <button
                     className="user-menu-item"
                     onClick={() => {
-                      setActiveTab('Profile');
-                      setShowUserMenu(false);
-                      setSidebarOpen(false);
+                      setActiveTab('Profile')
+                      setShowUserMenu(false)
+                      setSidebarOpen(false)
                     }}
                   >
                     👤 Profile
@@ -134,13 +130,30 @@ export default function Sidebar({
               Sign In
             </button>
           )}
-          <a className="nav-link small" href="https://learn.microsoft.com/dotnet/" target="_blank" rel="noreferrer">Microsoft .NET</a>
-          <a className="nav-link small" href="https://docs.microsoft.com/dotnet/csharp/" target="_blank" rel="noreferrer">C# Docs</a>
+          <a
+            className="nav-link small"
+            href="https://learn.microsoft.com/dotnet/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Microsoft .NET
+          </a>
+          <a
+            className="nav-link small"
+            href="https://docs.microsoft.com/dotnet/csharp/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            C# Docs
+          </a>
         </div>
       </aside>
 
       {showLogin && (
-        <Login onSwitchToRegister={switchToRegister} onClose={closeAuthModals} />
+        <Login
+          onSwitchToRegister={switchToRegister}
+          onClose={closeAuthModals}
+        />
       )}
 
       {showRegister && (
