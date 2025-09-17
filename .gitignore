@@ -21,6 +21,22 @@ aws-credentials.txt
 *.deps.json
 **/MvcTestingAppManifest.json
 
+# .NET NuGet
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/packages.lock.json
+
+# .NET Core
+project.json
+project.json.lock
+*.user
+*.suo
+*.cache
+*.docstates
+
 # IDE
 .vscode/
 .idea/
@@ -37,4 +53,8 @@ logs/
 
 # DNS configuration files (contain IP addresses)
 dns-record.json
-update-dns-record.jsonbackend/DotNetTutor.Api/appsettings.json
+update-dns-record.json
+backend/DotNetTutor.Api/appsettings.json
+
+# Ignore this gitignore file itself
+.gitignore
