@@ -1,5 +1,0 @@
-{
-  "id": 2,
-  "title": "Setting up Entity Framework Core",
-  "description": "Install EF Core packages, configure your DbContext, and establish your first database connection."
-}

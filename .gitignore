@@ -3,6 +3,7 @@ deployment/
 *.pem
 *.key
 **/appsettings.Production.json
+**/appsettings.json
 .env
 .env.*
 
@@ -36,4 +37,4 @@ logs/
 
 # DNS configuration files (contain IP addresses)
 dns-record.json
-update-dns-record.json
+update-dns-record.jsonbackend/DotNetTutor.Api/appsettings.json

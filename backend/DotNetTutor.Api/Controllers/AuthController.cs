@@ -21,14 +21,21 @@ public class AuthController : ControllerBase
   [HttpPost("register")]
   public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
   {
+    _logger.LogInformation("Registration attempt for email: {Email}", registerDto?.Email ?? "null");
+    
     if (!ModelState.IsValid)
     {
+      _logger.LogWarning("Registration failed - Invalid model state for {Email}: {Errors}",
+        registerDto?.Email ?? "null",
+        string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
       return BadRequest(ModelState);
     }
 
     try
     {
+      _logger.LogInformation("Calling CognitoService.RegisterAsync for {Email}", registerDto.Email);
       var result = await _cognitoService.RegisterAsync(registerDto);
+      _logger.LogInformation("Registration successful for {Email}", registerDto.Email);
       return Ok(result);
     }
     catch (UsernameExistsException)
@@ -221,19 +228,50 @@ public class AuthController : ControllerBase
   [HttpPost("google-oauth")]
   public async Task<IActionResult> GoogleOAuth([FromBody] GoogleOAuthDto googleOAuthDto)
   {
+    _logger.LogInformation("=== GOOGLE OAUTH REQUEST RECEIVED ===");
+    _logger.LogInformation("Request received at: {Timestamp}", DateTime.UtcNow);
+    _logger.LogInformation("Request Headers: {Headers}",
+      string.Join(", ", Request.Headers.Select(h => $"{h.Key}: {string.Join(", ", h.Value)}")));
+    
+    if (googleOAuthDto == null)
+    {
+      _logger.LogError("GoogleOAuthDto is null");
+      return BadRequest(new { message = "Request body is required" });
+    }
+    
+    _logger.LogInformation("GoogleOAuth request data:");
+    _logger.LogInformation("- Code: {CodeLength} chars, starts with: {CodePrefix}",
+      googleOAuthDto.Code?.Length ?? 0,
+      googleOAuthDto.Code?.Length > 10 ? googleOAuthDto.Code.Substring(0, 10) : googleOAuthDto.Code ?? "NULL");
+    _logger.LogInformation("- RedirectUri: {RedirectUri}", googleOAuthDto.RedirectUri ?? "NULL");
+
     if (!ModelState.IsValid)
     {
+      _logger.LogWarning("Model state is invalid: {Errors}",
+        string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
       return BadRequest(ModelState);
     }
 
     try
     {
+      _logger.LogInformation("Calling CognitoService.HandleGoogleOAuthAsync");
       var result = await _cognitoService.HandleGoogleOAuthAsync(googleOAuthDto.Code, googleOAuthDto.RedirectUri);
+      _logger.LogInformation("Google OAuth successful for user: {Email}", result.Email);
       return Ok(result);
+    }
+    catch (ArgumentException ex)
+    {
+      _logger.LogError(ex, "Google OAuth failed - Invalid arguments: {Message}", ex.Message);
+      return BadRequest(new { message = $"Invalid request: {ex.Message}" });
+    }
+    catch (InvalidOperationException ex)
+    {
+      _logger.LogError(ex, "Google OAuth failed - Configuration error: {Message}", ex.Message);
+      return BadRequest(new { message = "OAuth configuration error. Please contact support." });
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Google OAuth failed");
+      _logger.LogError(ex, "Google OAuth failed - Unexpected error: {Message}", ex.Message);
       return BadRequest(new { message = "Google OAuth authentication failed. Please try again." });
     }
   }

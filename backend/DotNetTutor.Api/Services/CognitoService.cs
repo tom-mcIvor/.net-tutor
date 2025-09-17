@@ -49,9 +49,21 @@ public class CognitoService
   {
     try
     {
+      // Log configuration validation
+      var clientId = _configuration["AWS:Cognito:ClientId"];
+      var clientSecret = _configuration["AWS:Cognito:ClientSecret"];
+      var userPoolId = _configuration["AWS:Cognito:UserPoolId"];
+      var region = _configuration["AWS:Region"];
+      
+      _logger.LogInformation("AWS Cognito Configuration Check:");
+      _logger.LogInformation("- ClientId: {ClientId}", string.IsNullOrEmpty(clientId) ? "MISSING" : (clientId.StartsWith("your-") ? "PLACEHOLDER" : "SET"));
+      _logger.LogInformation("- ClientSecret: {ClientSecret}", string.IsNullOrEmpty(clientSecret) ? "MISSING" : (clientSecret.StartsWith("your-") ? "PLACEHOLDER" : "SET"));
+      _logger.LogInformation("- UserPoolId: {UserPoolId}", string.IsNullOrEmpty(userPoolId) ? "MISSING" : (userPoolId.StartsWith("your-") ? "PLACEHOLDER" : "SET"));
+      _logger.LogInformation("- Region: {Region}", string.IsNullOrEmpty(region) ? "MISSING" : region);
+      
       var signUpRequest = new SignUpRequest
       {
-        ClientId = _configuration["AWS:Cognito:ClientId"],
+        ClientId = clientId,
         Username = registerDto.Email,
         Password = registerDto.Password,
         UserAttributes = new List<AttributeType>
@@ -65,9 +77,16 @@ public class CognitoService
       if (!string.IsNullOrEmpty(secretHash))
       {
         signUpRequest.SecretHash = secretHash;
+        _logger.LogInformation("Secret hash calculated and added to request");
+      }
+      else
+      {
+        _logger.LogWarning("No secret hash calculated - ClientSecret may be missing");
       }
 
+      _logger.LogInformation("Attempting Cognito SignUp for user: {Email}", registerDto.Email);
       var response = await _cognitoClient.SignUpAsync(signUpRequest);
+      _logger.LogInformation("Cognito SignUp successful for user: {Email}, UserConfirmed: {UserConfirmed}", registerDto.Email, response.UserConfirmed);
 
       return new AuthResponseDto
       {
@@ -77,9 +96,29 @@ public class CognitoService
         RequiresVerification = !response.UserConfirmed
       };
     }
+    catch (Amazon.CognitoIdentityProvider.Model.InvalidParameterException ex)
+    {
+      _logger.LogError(ex, "Invalid parameter error registering user {Email}: {Message}", registerDto.Email, ex.Message);
+      throw;
+    }
+    catch (Amazon.CognitoIdentityProvider.Model.ResourceNotFoundException ex)
+    {
+      _logger.LogError(ex, "AWS Cognito resource not found for user {Email}: {Message} - Check UserPoolId and ClientId configuration", registerDto.Email, ex.Message);
+      throw;
+    }
+    catch (Amazon.CognitoIdentityProvider.Model.NotAuthorizedException ex)
+    {
+      _logger.LogError(ex, "AWS Cognito authorization error for user {Email}: {Message} - Check ClientSecret and permissions", registerDto.Email, ex.Message);
+      throw;
+    }
+    catch (Amazon.CognitoIdentityProvider.AmazonCognitoIdentityProviderException ex)
+    {
+      _logger.LogError(ex, "AWS Cognito service error registering user {Email}: {Message}", registerDto.Email, ex.Message);
+      throw;
+    }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Error registering user {Email}", registerDto.Email);
+      _logger.LogError(ex, "Unexpected error registering user {Email}: {Message}", registerDto.Email, ex.Message);
       throw;
     }
   }
@@ -275,8 +314,29 @@ public class CognitoService
   {
     try
     {
+      _logger.LogInformation("=== GOOGLE OAUTH DEBUG START ===");
+      _logger.LogInformation("Starting Google OAuth flow - AuthCode: {AuthCodeLength} chars, RedirectUri: {RedirectUri}",
+        authorizationCode?.Length ?? 0, redirectUri);
+      
+      // Validate input parameters
+      if (string.IsNullOrEmpty(authorizationCode))
+      {
+        _logger.LogError("VALIDATION ERROR: Authorization code is null or empty");
+        throw new ArgumentException("Authorization code is required");
+      }
+      
+      if (string.IsNullOrEmpty(redirectUri))
+      {
+        _logger.LogError("VALIDATION ERROR: Redirect URI is null or empty");
+        throw new ArgumentException("Redirect URI is required");
+      }
+      
+      _logger.LogInformation("Input validation passed - proceeding with token exchange");
+      
       // Exchange authorization code for tokens with Google
       var tokenResponse = await ExchangeGoogleAuthCodeAsync(authorizationCode, redirectUri);
+      
+      _logger.LogInformation("Successfully exchanged auth code for tokens - Email: {Email}", tokenResponse.Email);
       
       // Use the ID token to authenticate with Cognito
       var authRequest = new InitiateAuthRequest
@@ -292,11 +352,15 @@ public class CognitoService
 
       // For federated authentication, we need to use a different approach
       // This is a simplified version - in production, you'd use Cognito's federated identity
-      return await CreateOrUpdateFederatedUserAsync(tokenResponse);
+      var result = await CreateOrUpdateFederatedUserAsync(tokenResponse);
+      
+      _logger.LogInformation("=== GOOGLE OAUTH DEBUG END - SUCCESS ===");
+      return result;
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Error handling Google OAuth");
+      _logger.LogError(ex, "=== GOOGLE OAUTH DEBUG END - ERROR === AuthCode: {AuthCodeLength} chars, RedirectUri: {RedirectUri}, Error: {ErrorMessage}",
+        authorizationCode?.Length ?? 0, redirectUri, ex.Message);
       throw;
     }
   }
@@ -305,6 +369,28 @@ public class CognitoService
   {
     var clientId = _configuration["Google:ClientId"];
     var clientSecret = _configuration["Google:ClientSecret"];
+    
+    _logger.LogInformation("=== TOKEN EXCHANGE DEBUG START ===");
+    _logger.LogInformation("Google OAuth Configuration Check:");
+    _logger.LogInformation("- ClientId: {ClientId}", string.IsNullOrEmpty(clientId) ? "MISSING" : (clientId.StartsWith("your-") ? "PLACEHOLDER" : $"SET ({clientId.Substring(0, Math.Min(20, clientId.Length))}...)"));
+    _logger.LogInformation("- ClientSecret: {ClientSecret}", string.IsNullOrEmpty(clientSecret) ? "MISSING" : (clientSecret.StartsWith("your-") ? "PLACEHOLDER" : $"SET ({clientSecret.Substring(0, Math.Min(10, clientSecret.Length))}...)"));
+    _logger.LogInformation("- RedirectUri: {RedirectUri}", redirectUri);
+    _logger.LogInformation("- AuthCode: {AuthCodePrefix}... ({Length} chars)",
+      authorizationCode?.Length > 10 ? authorizationCode.Substring(0, 10) : authorizationCode ?? "NULL",
+      authorizationCode?.Length ?? 0);
+    
+    // Validate configuration
+    if (string.IsNullOrEmpty(clientId) || clientId.StartsWith("your-"))
+    {
+      _logger.LogError("CONFIGURATION ERROR: Google ClientId is missing or using placeholder value");
+      throw new InvalidOperationException("Google OAuth ClientId is not properly configured");
+    }
+    
+    if (string.IsNullOrEmpty(clientSecret) || clientSecret.StartsWith("your-"))
+    {
+      _logger.LogError("CONFIGURATION ERROR: Google ClientSecret is missing or using placeholder value");
+      throw new InvalidOperationException("Google OAuth ClientSecret is not properly configured");
+    }
     
     using var httpClient = new HttpClient();
     var tokenRequest = new Dictionary<string, string>
@@ -316,27 +402,101 @@ public class CognitoService
       { "grant_type", "authorization_code" }
     };
 
-    var response = await httpClient.PostAsync("https://oauth2.googleapis.com/token",
-      new FormUrlEncodedContent(tokenRequest));
-    
-    if (!response.IsSuccessStatusCode)
+    _logger.LogInformation("Token request parameters:");
+    foreach (var param in tokenRequest)
     {
-      throw new Exception("Failed to exchange Google authorization code for tokens");
+      var value = param.Key == "client_secret" ? "***HIDDEN***" :
+                  param.Key == "code" ? $"{param.Value.Substring(0, Math.Min(10, param.Value.Length))}..." :
+                  param.Value;
+      _logger.LogInformation("  {Key}: {Value}", param.Key, value);
     }
 
-    var jsonResponse = await response.Content.ReadAsStringAsync();
-    var tokenResponse = JsonSerializer.Deserialize<GoogleTokenResponse>(jsonResponse, new JsonSerializerOptions
+    _logger.LogInformation("Sending token exchange request to Google OAuth endpoint: https://oauth2.googleapis.com/token");
+    
+    try
     {
-      PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-    });
+      var response = await httpClient.PostAsync("https://oauth2.googleapis.com/token",
+        new FormUrlEncodedContent(tokenRequest));
+      
+      var responseContent = await response.Content.ReadAsStringAsync();
+      _logger.LogInformation("Google OAuth response - Status: {StatusCode}, Content Length: {ContentLength}",
+        response.StatusCode, responseContent?.Length ?? 0);
+      
+      if (!response.IsSuccessStatusCode)
+      {
+        _logger.LogError("=== GOOGLE OAUTH TOKEN EXCHANGE FAILED ===");
+        _logger.LogError("Status Code: {StatusCode}", response.StatusCode);
+        _logger.LogError("Response Headers: {Headers}", string.Join(", ", response.Headers.Select(h => $"{h.Key}: {string.Join(", ", h.Value)}")));
+        _logger.LogError("Response Content: {Response}", responseContent);
+        
+        // Try to parse error details
+        try
+        {
+          var errorResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
+          if (errorResponse.TryGetProperty("error", out var error))
+          {
+            _logger.LogError("Google OAuth Error: {Error}", error.GetString());
+          }
+          if (errorResponse.TryGetProperty("error_description", out var errorDesc))
+          {
+            _logger.LogError("Google OAuth Error Description: {ErrorDescription}", errorDesc.GetString());
+          }
+        }
+        catch
+        {
+          _logger.LogError("Could not parse error response as JSON");
+        }
+        
+        throw new Exception($"Failed to exchange Google authorization code for tokens. Status: {response.StatusCode}, Response: {responseContent}");
+      }
 
-    // Decode the ID token to get user info
-    var userInfo = await GetGoogleUserInfoAsync(tokenResponse.AccessToken);
-    tokenResponse.Email = userInfo.Email;
-    tokenResponse.Name = userInfo.Name;
-    tokenResponse.Picture = userInfo.Picture;
+      _logger.LogInformation("Token exchange successful - parsing response");
 
-    return tokenResponse;
+      try
+      {
+        var tokenResponse = JsonSerializer.Deserialize<GoogleTokenResponse>(responseContent, new JsonSerializerOptions
+        {
+          PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        });
+
+        _logger.LogInformation("Successfully parsed token response - AccessToken: {HasAccessToken}, IdToken: {HasIdToken}",
+          !string.IsNullOrEmpty(tokenResponse?.AccessToken), !string.IsNullOrEmpty(tokenResponse?.IdToken));
+
+        if (tokenResponse?.AccessToken == null)
+        {
+          _logger.LogError("ACCESS TOKEN IS NULL - Raw response: {Response}", responseContent);
+          throw new Exception("Access token is null in Google OAuth response");
+        }
+
+        // Decode the ID token to get user info
+        _logger.LogInformation("Fetching user info from Google API");
+        var userInfo = await GetGoogleUserInfoAsync(tokenResponse.AccessToken);
+        tokenResponse.Email = userInfo.Email;
+        tokenResponse.Name = userInfo.Name;
+        tokenResponse.Picture = userInfo.Picture;
+
+        _logger.LogInformation("Successfully retrieved user info - Email: {Email}, Name: {Name}",
+          userInfo.Email, userInfo.Name);
+        _logger.LogInformation("=== TOKEN EXCHANGE DEBUG END - SUCCESS ===");
+
+        return tokenResponse;
+      }
+      catch (JsonException ex)
+      {
+        _logger.LogError(ex, "Failed to parse Google OAuth response JSON: {Response}", responseContent);
+        throw new Exception($"Failed to parse Google OAuth response: {ex.Message}");
+      }
+    }
+    catch (HttpRequestException ex)
+    {
+      _logger.LogError(ex, "HTTP request failed when calling Google OAuth endpoint");
+      throw new Exception($"Network error when calling Google OAuth: {ex.Message}");
+    }
+    catch (TaskCanceledException ex)
+    {
+      _logger.LogError(ex, "Request to Google OAuth endpoint timed out");
+      throw new Exception($"Timeout when calling Google OAuth: {ex.Message}");
+    }
   }
 
   private async Task<GoogleUserInfo> GetGoogleUserInfoAsync(string accessToken)
@@ -363,11 +523,15 @@ public class CognitoService
   {
     try
     {
+      _logger.LogInformation("Processing federated user - Email: {Email}, Name: {Name}",
+        googleToken.Email, googleToken.Name);
+      
       // Try to find existing user first
       var existingUser = await FindUserByEmailAsync(googleToken.Email);
       
-      if (existingUser != null)
+      if (existingUser)
       {
+        _logger.LogInformation("Found existing user for email: {Email}", googleToken.Email);
         // User exists, generate JWT token for them
         return new AuthResponseDto
         {
@@ -380,6 +544,7 @@ public class CognitoService
       }
       else
       {
+        _logger.LogInformation("Creating new federated user for email: {Email}", googleToken.Email);
         // Create new user in Cognito
         await CreateFederatedUserAsync(googleToken);
         
@@ -395,7 +560,7 @@ public class CognitoService
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "Error creating or updating federated user");
+      _logger.LogError(ex, "Error creating or updating federated user for email: {Email}", googleToken?.Email ?? "NULL");
       throw;
     }
   }
