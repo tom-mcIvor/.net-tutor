@@ -1,6 +1,6 @@
 # .NET Tutor — Interactive .NET Learning Platform
 
-🌐 **Live Demo:** [net-tutor-tommcivors-projects.vercel.app](https://net-tutor-tommcivors-projects.vercel.app)
+🌐 **Live Demo of the frontend only:** [net-tutor-tommcivors-projects.vercel.app](https://net-tutor-tommcivors-projects.vercel.app)
 
 ---
 
