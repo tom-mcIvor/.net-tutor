@@ -12,35 +12,67 @@ export const GoogleCallback: React.FC<GoogleCallbackProps> = ({
 }) => {
   const { handleGoogleCallback } = useAuth()
   const [isProcessing, setIsProcessing] = useState(true)
+  const [hasProcessed, setHasProcessed] = useState(false)
 
   useEffect(() => {
+    // Prevent multiple simultaneous OAuth processing attempts
+    if (hasProcessed) {
+      console.log('GoogleCallback: Already processed, skipping')
+      return
+    }
+
     const processCallback = async () => {
       try {
+        setHasProcessed(true) // Mark as processing to prevent duplicates
+        
         const urlParams = new URLSearchParams(window.location.search)
         const code = urlParams.get('code')
         const state = urlParams.get('state')
         const error = urlParams.get('error')
 
+        console.log('GoogleCallback: Processing OAuth callback', {
+          code: !!code,
+          state,
+          error,
+          hasProcessed,
+        })
+
         if (error) {
+          console.error('GoogleCallback: OAuth error from URL params:', error)
           throw new Error(`Google OAuth error: ${error}`)
         }
 
         if (!code) {
+          console.error('GoogleCallback: No authorization code in URL')
           throw new Error('No authorization code received from Google')
         }
 
+        console.log('GoogleCallback: Calling handleGoogleCallback...')
         await handleGoogleCallback(code, state || undefined)
-        onSuccess()
+        console.log('GoogleCallback: OAuth callback completed successfully')
+
+        // Add a small delay to ensure the auth state is fully updated
+        setTimeout(() => {
+          onSuccess()
+        }, 100)
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Google OAuth failed'
-        onError(errorMessage)
+        console.error('GoogleCallback: Error during OAuth processing:', err)
+        const errorMessage =
+          err instanceof Error ? err.message : 'Google OAuth failed'
+
+        // Add a delay before showing error to avoid race conditions
+        setTimeout(() => {
+          onError(errorMessage)
+        }, 500)
       } finally {
         setIsProcessing(false)
       }
     }
 
-    processCallback()
-  }, [handleGoogleCallback, onSuccess, onError])
+    // Add a small delay before processing to ensure the component is fully mounted
+    const timer = setTimeout(processCallback, 100)
+    return () => clearTimeout(timer)
+  }, [handleGoogleCallback, onSuccess, onError, hasProcessed])
 
   if (isProcessing) {
     return (

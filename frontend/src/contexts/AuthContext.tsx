@@ -253,46 +253,85 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true)
     try {
       const redirectUri = `${window.location.origin}/`
+      console.log('=== GOOGLE OAUTH CALLBACK DEBUG START ===')
       console.log('Google OAuth: Sending request with redirectUri:', redirectUri)
-      console.log('Google OAuth: Authorization code:', code.substring(0, 20) + '...')
+      console.log('Google OAuth: Authorization code length:', code?.length || 0)
+      console.log('Google OAuth: Authorization code prefix:', code?.substring(0, 20) + '...')
+      console.log('Google OAuth: State:', state || 'null')
+      console.log('Google OAuth: Current URL:', window.location.href)
 
+      const requestBody = {
+        code,
+        redirectUri,
+        state,
+      }
+      console.log('Google OAuth: Request body:', requestBody)
+
+      // Make single OAuth request (no retries - OAuth codes are single-use)
+      console.log('Google OAuth: Making single request to backend')
+      
       const response = await fetch('/api/auth/google-oauth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          code,
-          redirectUri,
-          state,
-        }),
+        body: JSON.stringify(requestBody),
       })
 
       console.log('Google OAuth: Response status:', response.status)
+      console.log('Google OAuth: Response headers:', Object.fromEntries(response.headers.entries()))
+
+      const responseText = await response.text()
+      console.log('Google OAuth: Raw response:', responseText)
 
       if (!response.ok) {
-        const errorData = await response.text()
-        console.error('Google OAuth: Error response:', errorData)
-        throw new Error(errorData || 'Google OAuth failed')
+        console.error('=== GOOGLE OAUTH CALLBACK ERROR ===')
+        console.error('Status:', response.status)
+        console.error('Response:', responseText)
+        
+        // Try to parse as JSON to get more details
+        try {
+          const errorJson = JSON.parse(responseText)
+          console.error('Parsed error:', errorJson)
+          throw new Error(errorJson.message || responseText || 'Google OAuth failed')
+        } catch {
+          console.error('Could not parse error response as JSON')
+          throw new Error(responseText || 'Google OAuth failed')
+        }
       }
 
-      const data = await response.json()
-      console.log('Google OAuth: Success response:', data)
+      let data
+      try {
+        data = JSON.parse(responseText)
+        console.log('Google OAuth: Parsed success response:', data)
+      } catch {
+        console.error('Could not parse success response as JSON:', responseText)
+        throw new Error('Invalid response format from server')
+      }
+
+      if (!data.token || !data.email) {
+        console.error('Google OAuth: Missing required fields in response:', data)
+        throw new Error('Invalid response: missing token or email')
+      }
 
       setToken(data.token)
       const userData = {
         email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
       }
       setUser(userData)
 
       localStorage.setItem('authToken', data.token)
       localStorage.setItem('authUser', JSON.stringify(userData))
 
-      console.log('Google OAuth: User data set:', userData)
+      console.log('Google OAuth: User data set successfully:', userData)
+      console.log('=== GOOGLE OAUTH CALLBACK DEBUG END - SUCCESS ===')
     } catch (error) {
+      console.error('=== GOOGLE OAUTH CALLBACK DEBUG END - ERROR ===')
       console.error('Google OAuth callback error:', error)
+      console.error('Error type:', typeof error)
+      console.error('Error message:', error instanceof Error ? error.message : String(error))
       throw error
     } finally {
       setIsLoading(false)

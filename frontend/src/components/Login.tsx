@@ -15,13 +15,8 @@ export const Login: React.FC<LoginProps> = ({
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showVerification, setShowVerification] = useState(false)
-  const {
-    login,
-    loginWithGoogle,
-    isLoading,
-    requiresVerification,
-    verificationEmail,
-  } = useAuth()
+  const { login, isLoading, requiresVerification, verificationEmail } =
+    useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -124,6 +119,7 @@ export const Login: React.FC<LoginProps> = ({
           <span>or</span>
         </div>
 
+        {/* Google OAuth temporarily disabled - needs deployment fixes
         <div className="google-auth-section">
           <button
             type="button"
@@ -165,6 +161,7 @@ export const Login: React.FC<LoginProps> = ({
             Continue with Google
           </button>
         </div>
+        */}
 
         <div className="auth-switch">
           <p>

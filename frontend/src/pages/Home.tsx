@@ -129,10 +129,15 @@ export default function Home() {
   }
 
   const handleGoogleError = (error: string) => {
+    console.error('Home: Google OAuth error received:', error)
     setShowGoogleCallback(false)
-    console.error('Google OAuth error:', error)
     window.history.replaceState({}, document.title, window.location.pathname)
-    alert('Google sign-in failed: ' + error)
+    
+    // Show error in a less intrusive way and give time for any pending auth to complete
+    setTimeout(() => {
+      console.log('Home: Showing delayed error message:', error)
+      alert('Google sign-in failed: ' + error)
+    }, 1000)
   }
 
 

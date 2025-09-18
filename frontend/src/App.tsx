@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import './App.css'
 import Sidebar from './components/Sidebar'
-import { GoogleCallback } from './components/GoogleCallback'
-import { useAuth } from './contexts/AuthContext'
 
 const TABS = [
   'Introduction to .NET',
@@ -17,54 +15,6 @@ const TABS = [
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(TABS[0])
-  const [showGoogleCallback, setShowGoogleCallback] = useState(false)
-  const { user, isLoading } = useAuth()
-
-  useEffect(() => {
-    // Check if this is a Google OAuth callback and user is not already logged in
-    const urlParams = new URLSearchParams(window.location.search)
-    const code = urlParams.get('code')
-
-    console.log('App: Checking OAuth callback', {
-      code,
-      user,
-      isLoading,
-      showGoogleCallback,
-    })
-
-    if (code && !user) {
-      console.log('App: Setting showGoogleCallback to true')
-      setShowGoogleCallback(true)
-    } else if (user && showGoogleCallback) {
-      // User is now authenticated, hide the callback and clear URL
-      console.log('App: User authenticated, hiding callback')
-      setShowGoogleCallback(false)
-      window.history.replaceState({}, document.title, window.location.pathname)
-    }
-  }, [user, isLoading, showGoogleCallback])
-
-  const handleGoogleSuccess = () => {
-    setShowGoogleCallback(false)
-    // Clear the URL parameters
-    window.history.replaceState({}, document.title, window.location.pathname)
-  }
-
-  const handleGoogleError = (error: string) => {
-    setShowGoogleCallback(false)
-    console.error('Google OAuth error:', error)
-    // Clear the URL parameters
-    window.history.replaceState({}, document.title, window.location.pathname)
-    alert('Google sign-in failed: ' + error)
-  }
-
-  if (showGoogleCallback) {
-    return (
-      <GoogleCallback
-        onSuccess={handleGoogleSuccess}
-        onError={handleGoogleError}
-      />
-    )
-  }
 
   return (
     <div className="layout">
